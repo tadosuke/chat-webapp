@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev:src": "vite",
-    "build:src": "tsc -b && vite build"
+    "build:src": "tsc -b && vite build",
+    "run:server": "node dist-server/index.js",
+    "build:server": "tsc -p tsconfig.server.json"
   },
   "dependencies": {
     "express": "5.1.0",
