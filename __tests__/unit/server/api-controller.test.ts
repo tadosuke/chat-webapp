@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { Request, Response } from 'express'
-import { handleEcho, saveMessage, getMessages } from '../../../server/api-controller.js'
+import { handleEcho, getMessages } from '../../../server/api-controller.js'
 
 // greeting モジュールをモック
 vi.mock('../../../server/greeting.js', () => ({
@@ -18,6 +18,10 @@ vi.mock('../../../server/db.js', () => ({
 }))
 
 describe('api-controller', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   describe('handleEcho', () => {
     const createMockRequest = (body: any): Request => ({
       body
@@ -30,117 +34,95 @@ describe('api-controller', () => {
       return { res, json, status }
     }
 
-    it('有効な文字列が提供された場合、メッセージを返す', () => {
+    it('有効な文字列が提供された場合、メッセージを返し、ユーザーとエコーメッセージを保存する', async () => {
       const req = createMockRequest({ message: 'Hello, World!' })
       const { res, json } = createMockResponse()
 
-      handleEcho(req, res)
+      mockSaveMessage.mockResolvedValue({ id: 1, text: 'Hello, World!' })
 
+      await handleEcho(req, res)
+
+      // ユーザーメッセージとエコーメッセージの両方が保存されることを確認
+      expect(mockSaveMessage).toHaveBeenCalledTimes(2)
+      expect(mockSaveMessage).toHaveBeenNthCalledWith(1, 'Hello, World!', 'user')
+      expect(mockSaveMessage).toHaveBeenNthCalledWith(2, 'Hello, World!', 'echo')
       expect(json).toHaveBeenCalledWith({ message: 'Hello, World!' })
     })
 
-    it('メッセージが文字列でない場合、400エラーを返す', () => {
+    it('メッセージが文字列でない場合、400エラーを返し、データベースに保存しない', async () => {
       const req = createMockRequest({ message: 123 })
       const { res, json, status } = createMockResponse()
 
-      handleEcho(req, res)
+      await handleEcho(req, res)
 
       expect(status).toHaveBeenCalledWith(400)
       expect(json).toHaveBeenCalledWith({ error: 'Message must be a string' })
+      expect(mockSaveMessage).not.toHaveBeenCalled()
     })
 
-    it('メッセージがnullの場合、400エラーを返す', () => {
+    it('メッセージがnullの場合、400エラーを返し、データベースに保存しない', async () => {
       const req = createMockRequest({ message: null })
       const { res, json, status } = createMockResponse()
 
-      handleEcho(req, res)
+      await handleEcho(req, res)
 
       expect(status).toHaveBeenCalledWith(400)
       expect(json).toHaveBeenCalledWith({ error: 'Message must be a string' })
+      expect(mockSaveMessage).not.toHaveBeenCalled()
     })
 
-    it('メッセージがundefinedの場合、400エラーを返す', () => {
+    it('メッセージがundefinedの場合、400エラーを返し、データベースに保存しない', async () => {
       const req = createMockRequest({ message: undefined })
       const { res, json, status } = createMockResponse()
 
-      handleEcho(req, res)
+      await handleEcho(req, res)
 
       expect(status).toHaveBeenCalledWith(400)
       expect(json).toHaveBeenCalledWith({ error: 'Message must be a string' })
+      expect(mockSaveMessage).not.toHaveBeenCalled()
     })
 
-    it('メッセージがオブジェクトの場合、400エラーを返す', () => {
+    it('メッセージがオブジェクトの場合、400エラーを返し、データベースに保存しない', async () => {
       const req = createMockRequest({ message: { text: 'hello' } })
       const { res, json, status } = createMockResponse()
 
-      handleEcho(req, res)
+      await handleEcho(req, res)
 
       expect(status).toHaveBeenCalledWith(400)
       expect(json).toHaveBeenCalledWith({ error: 'Message must be a string' })
+      expect(mockSaveMessage).not.toHaveBeenCalled()
     })
 
-    it('メッセージが配列の場合、400エラーを返す', () => {
+    it('メッセージが配列の場合、400エラーを返し、データベースに保存しない', async () => {
       const req = createMockRequest({ message: ['hello'] })
       const { res, json, status } = createMockResponse()
 
-      handleEcho(req, res)
+      await handleEcho(req, res)
 
       expect(status).toHaveBeenCalledWith(400)
       expect(json).toHaveBeenCalledWith({ error: 'Message must be a string' })
+      expect(mockSaveMessage).not.toHaveBeenCalled()
     })
 
-    it('空文字列のメッセージを処理する', () => {
+    it('空文字列のメッセージを処理し、データベースに保存する', async () => {
       const req = createMockRequest({ message: '' })
       const { res, json } = createMockResponse()
 
-      handleEcho(req, res)
+      mockSaveMessage.mockResolvedValue({ id: 1, text: '' })
 
+      await handleEcho(req, res)
+
+      expect(mockSaveMessage).toHaveBeenCalledTimes(2)
+      expect(mockSaveMessage).toHaveBeenNthCalledWith(1, '', 'user')
+      expect(mockSaveMessage).toHaveBeenNthCalledWith(2, '', 'echo')
       expect(json).toHaveBeenCalledWith({ message: '' })
     })
 
-    it('リクエストボディにmessageプロパティがない場合、400エラーを返す', () => {
+    it('リクエストボディにmessageプロパティがない場合、400エラーを返し、データベースに保存しない', async () => {
       const req = createMockRequest({})
       const { res, json, status } = createMockResponse()
 
-      handleEcho(req, res)
-
-      expect(status).toHaveBeenCalledWith(400)
-      expect(json).toHaveBeenCalledWith({ error: 'Message must be a string' })
-    })
-  })
-
-  describe('saveMessage', () => {
-    const createMockRequest = (body: any): Request => ({
-      body
-    } as Request)
-
-    const createMockResponse = (): { res: Response; json: any; status: any } => {
-      const json = vi.fn()
-      const status = vi.fn(() => ({ json }))
-      const res = { json, status } as unknown as Response
-      return { res, json, status }
-    }
-
-    it('有効なメッセージを保存して結果を返す', async () => {
-      const req = createMockRequest({ message: 'Test message' })
-      const { res, json } = createMockResponse()
-
-      mockSaveMessage.mockResolvedValue({ id: 1, text: 'Test message' })
-
-      await saveMessage(req, res)
-
-      expect(mockSaveMessage).toHaveBeenCalledWith('Test message', 'user')
-      expect(json).toHaveBeenCalledWith({ id: 1, text: 'Test message' })
-    })
-
-    it('メッセージが文字列でない場合、400エラーを返す', async () => {
-      const req = createMockRequest({ message: 123 })
-      const { res, json, status } = createMockResponse()
-
-      // 以前のモック呼び出しをクリア
-      mockSaveMessage.mockClear()
-
-      await saveMessage(req, res)
+      await handleEcho(req, res)
 
       expect(status).toHaveBeenCalledWith(400)
       expect(json).toHaveBeenCalledWith({ error: 'Message must be a string' })
@@ -153,32 +135,10 @@ describe('api-controller', () => {
 
       mockSaveMessage.mockRejectedValue(new Error('DB Error'))
 
-      await saveMessage(req, res)
+      await handleEcho(req, res)
 
       expect(status).toHaveBeenCalledWith(500)
-      expect(json).toHaveBeenCalledWith({ error: 'Database error' })
-    })
-
-    it('echoメッセージを保存する', async () => {
-      const req = createMockRequest({ message: 'Echo message', sender: 'echo' })
-      const { res, json } = createMockResponse()
-
-      mockSaveMessage.mockResolvedValue({ id: 2, text: 'Echo message' })
-
-      await saveMessage(req, res)
-
-      expect(mockSaveMessage).toHaveBeenCalledWith('Echo message', 'echo')
-      expect(json).toHaveBeenCalledWith({ id: 2, text: 'Echo message' })
-    })
-
-    it('無効なsenderが指定された場合、400エラーを返す', async () => {
-      const req = createMockRequest({ message: 'Test message', sender: 'invalid' })
-      const { res, json, status } = createMockResponse()
-
-      await saveMessage(req, res)
-
-      expect(status).toHaveBeenCalledWith(400)
-      expect(json).toHaveBeenCalledWith({ error: "Sender must be 'user' or 'echo'" })
+      expect(json).toHaveBeenCalledWith({ error: 'Internal server error' })
     })
   })
 
