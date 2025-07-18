@@ -1,69 +1,80 @@
-# React + TypeScript + Vite
+# Chat Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + TypeScript + Viteを使用したリアルタイムチャットアプリケーションです。メッセージの送受信、エコー機能、SQLiteでの会話履歴保存を提供します。
 
-Currently, two official plugins are available:
+## 技術スタック
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### フロントエンド
+- React 19.1.0
+- TypeScript 5.8.3
+- Vite 7.0.4
 
-## Expanding the ESLint configuration
+### バックエンド
+- Express 5.1.0
+- SQLite3 5.1.7
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 開発ツール
+- ESLint 9.30.1
+- Vitest 3.2.4
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 機能
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+- チャットインターフェース（メッセージ送信・表示）
+- メッセージエコー機能
+- SQLiteデータベースでの会話履歴保存
+- リアルタイムメッセージ表示
+- TypeScriptによる型安全性
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## セットアップ
+
+```bash
+# 依存関係のインストール
+npm install
+
+# フロントエンドとバックエンドのビルド
+npm run build:all
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 開発モード
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+# フロントエンド開発サーバー起動
+npm run dev:src
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# バックエンド開発サーバー起動（別ターミナル）
+npm run dev:server
+```
+
+## 本番モード
+
+```bash
+# ビルド実行
+npm run build:all
+
+# サーバー起動
+npm run run:server
+```
+
+## プロジェクト構造
+
+```
+src/              # React フロントエンドコード
+├── Chat.tsx      # メインチャットコンポーネント
+├── ChatDisplay.tsx # メッセージ表示コンポーネント
+└── ChatInput.tsx # メッセージ入力コンポーネント
+
+server/           # Express バックエンドコード
+├── index.ts      # サーバーエントリーポイント
+├── routes.ts     # API ルーティング
+├── api-controller.ts # API コントローラー
+└── db.ts         # データベース管理
+
+__tests__/        # テストコード
+```
+
+## テスト
+
+```bash
+# 全テスト実行
+npm test
 ```
