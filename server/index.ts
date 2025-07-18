@@ -2,6 +2,7 @@ import express from "express";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import { createRouter } from "./routes.js";
+import { getDatabase } from "./db.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -23,7 +24,22 @@ app.get("/", (_req, res) => {
   res.sendFile(join(__dirname, "../dist-src/index.html"));
 });
 
-// サーバー起動
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+// データベース初期化とサーバー起動
+async function startServer() {
+  try {
+    // データベースの初期化
+    const db = getDatabase();
+    await db.initialize();
+    console.log("Database initialized successfully");
+
+    // サーバー起動
+    app.listen(PORT, () => {
+      console.log(`Server is running on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1);
+  }
+}
+
+startServer();

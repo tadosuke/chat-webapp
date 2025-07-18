@@ -19,6 +19,32 @@ function Chat() {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   /**
+   * 履歴からメッセージを読み込む
+   */
+  useEffect(() => {
+    const loadMessages = async () => {
+      try {
+        const response = await fetch('/api/messages')
+        if (response.ok) {
+          const data = await response.json()
+          // データベースからのメッセージを適切な形式に変換
+          const formattedMessages: Message[] = data.map((msg: any) => ({
+            id: msg.id,
+            text: msg.text,
+            timestamp: new Date(msg.timestamp),
+            sender: msg.sender as 'user' | 'echo' // データベースからsender情報を使用
+          }))
+          setMessages(formattedMessages)
+        }
+      } catch (error) {
+        console.error('Failed to load message history:', error)
+      }
+    }
+
+    loadMessages()
+  }, [])
+
+  /**
    * フォーム送信時の処理
    * メッセージが空でない場合、新しいメッセージを作成してメッセージリストに追加し、
    * API/echoエンドポイントに送信してレスポンスを取得する
@@ -40,6 +66,15 @@ function Chat() {
       setMessage('')
 
       try {
+        // メッセージをデータベースに保存
+        await fetch('/api/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ message: messageToSend, sender: 'user' })
+        })
+
         // API/echoエンドポイントに送信
         const response = await fetch('/api/echo', {
           method: 'POST',
@@ -57,13 +92,23 @@ function Chat() {
             timestamp: new Date(),
             sender: 'echo'
           }
+          
+          // エコーメッセージをデータベースに保存
+          await fetch('/api/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: data.message, sender: 'echo' })
+          })
+          
           // エコーメッセージを追加
           setMessages(prev => [...prev, echoMessage])
         } else {
           console.error('Echo API error:', response.status)
         }
       } catch (error) {
-        console.error('Failed to call echo API:', error)
+        console.error('Failed to call APIs:', error)
       }
     }
   }

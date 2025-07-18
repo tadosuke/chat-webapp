@@ -7,6 +7,12 @@ import { createRouter } from '../../../server/routes.js'
 vi.mock('../../../server/api-controller.js', () => ({
   handleEcho: vi.fn((req, res) => {
     res.json({ message: 'mocked response' })
+  }),
+  saveMessage: vi.fn((req, res) => {
+    res.json({ id: 1, text: 'mocked message' })
+  }),
+  getMessages: vi.fn((req, res) => {
+    res.json([{ id: 1, text: 'mocked message', timestamp: '2023-01-01 00:00:00' }])
   })
 }))
 
