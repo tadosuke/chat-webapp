@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { Request, Response } from 'express'
 import { handleEcho } from '../../../server/api-controller.js'
 
-// Mock the greeting module
+// greeting モジュールをモック
 vi.mock('../../../server/greeting.js', () => ({
   echo: vi.fn((message: string) => message)
 }))
@@ -20,7 +20,7 @@ describe('api-controller', () => {
       return { res, json, status }
     }
 
-    it('should return the message when valid string is provided', () => {
+    it('有効な文字列が提供された場合、メッセージを返す', () => {
       const req = createMockRequest({ message: 'Hello, World!' })
       const { res, json } = createMockResponse()
 
@@ -29,7 +29,7 @@ describe('api-controller', () => {
       expect(json).toHaveBeenCalledWith({ message: 'Hello, World!' })
     })
 
-    it('should return 400 error when message is not a string', () => {
+    it('メッセージが文字列でない場合、400エラーを返す', () => {
       const req = createMockRequest({ message: 123 })
       const { res, json, status } = createMockResponse()
 
@@ -39,7 +39,7 @@ describe('api-controller', () => {
       expect(json).toHaveBeenCalledWith({ error: 'Message must be a string' })
     })
 
-    it('should return 400 error when message is null', () => {
+    it('メッセージがnullの場合、400エラーを返す', () => {
       const req = createMockRequest({ message: null })
       const { res, json, status } = createMockResponse()
 
@@ -49,7 +49,7 @@ describe('api-controller', () => {
       expect(json).toHaveBeenCalledWith({ error: 'Message must be a string' })
     })
 
-    it('should return 400 error when message is undefined', () => {
+    it('メッセージがundefinedの場合、400エラーを返す', () => {
       const req = createMockRequest({ message: undefined })
       const { res, json, status } = createMockResponse()
 
@@ -59,7 +59,7 @@ describe('api-controller', () => {
       expect(json).toHaveBeenCalledWith({ error: 'Message must be a string' })
     })
 
-    it('should return 400 error when message is an object', () => {
+    it('メッセージがオブジェクトの場合、400エラーを返す', () => {
       const req = createMockRequest({ message: { text: 'hello' } })
       const { res, json, status } = createMockResponse()
 
@@ -69,7 +69,7 @@ describe('api-controller', () => {
       expect(json).toHaveBeenCalledWith({ error: 'Message must be a string' })
     })
 
-    it('should return 400 error when message is an array', () => {
+    it('メッセージが配列の場合、400エラーを返す', () => {
       const req = createMockRequest({ message: ['hello'] })
       const { res, json, status } = createMockResponse()
 
@@ -79,7 +79,7 @@ describe('api-controller', () => {
       expect(json).toHaveBeenCalledWith({ error: 'Message must be a string' })
     })
 
-    it('should handle empty string message', () => {
+    it('空文字列のメッセージを処理する', () => {
       const req = createMockRequest({ message: '' })
       const { res, json } = createMockResponse()
 
@@ -88,7 +88,7 @@ describe('api-controller', () => {
       expect(json).toHaveBeenCalledWith({ message: '' })
     })
 
-    it('should return 400 error when request body has no message property', () => {
+    it('リクエストボディにmessageプロパティがない場合、400エラーを返す', () => {
       const req = createMockRequest({})
       const { res, json, status } = createMockResponse()
 

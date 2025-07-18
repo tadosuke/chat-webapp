@@ -7,11 +7,21 @@ interface Message {
   timestamp: Date
 }
 
+/**
+ * チャットコンポーネント
+ * メッセージの送信と表示を行うチャットインターフェースを提供する
+ * @returns チャットのJSX要素
+ */
 function Chat() {
   const [message, setMessage] = useState('')
   const [messages, setMessages] = useState<Message[]>([])
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
+  /**
+   * フォーム送信時の処理
+   * メッセージが空でない場合、新しいメッセージを作成してメッセージリストに追加する
+   * @param e - フォームイベント
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (message.trim()) {
@@ -25,6 +35,11 @@ function Chat() {
     }
   }
 
+  /**
+   * キーボード入力時の処理
+   * Enterキー（Shiftキーなし）でフォーム送信を実行する
+   * @param e - キーボードイベント
+   */
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -32,6 +47,10 @@ function Chat() {
     }
   }
 
+  /**
+   * テキストエリアの高さを内容に応じて自動調整する
+   * 最小4行、最大12行の範囲で動的に高さを変更する
+   */
   const adjustTextareaHeight = () => {
     const textarea = textareaRef.current
     if (textarea) {

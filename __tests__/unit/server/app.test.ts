@@ -2,9 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import request from 'supertest'
 import express from 'express'
 import { fileURLToPath } from 'url'
-import { dirname, join } from 'path'
+import { dirname } from 'path'
 
-// Mock the routes module to avoid circular dependencies
+// routes モジュールをモックして循環依存を回避
 vi.mock('../../../server/routes.js', () => ({
   createRouter: vi.fn(() => {
     const router = express.Router()
@@ -24,13 +24,13 @@ describe('Express App Integration', () => {
   let app: express.Application
 
   beforeEach(async () => {
-    // Reset modules to get a fresh instance
+    // モジュールをリセットして新しいインスタンスを取得
     vi.resetModules()
     
-    // Import the dependencies after mock is set up
+    // モック設定後に依存関係をインポート
     const { createRouter } = await import('../../../server/routes.js')
     
-    // Create the app similar to index.ts but without starting the server
+    // index.ts と同様にアプリを作成するが、サーバー起動は行わない
     app = express()
     const __filename = fileURLToPath(import.meta.url)
     const __dirname = dirname(__filename)
@@ -42,7 +42,7 @@ describe('Express App Integration', () => {
     app.use('/api', createRouter())
 
     // 静的ファイルの配信（ビルド済みファイル）
-    // Note: In tests, we might not have the dist-src directory, so we'll skip this or mock it
+    // 注: テストでは dist-src ディレクトリがない場合があるため、これをスキップまたはモック
     
     // ルートパス用の設定
     app.get('/', (_req, res) => {
@@ -50,8 +50,8 @@ describe('Express App Integration', () => {
     })
   })
 
-  describe('API endpoints', () => {
-    it('should handle POST /api/echo with valid message', async () => {
+  describe('API エンドポイント', () => {
+    it('有効なメッセージでPOST /api/echo を処理する', async () => {
       const response = await request(app)
         .post('/api/echo')
         .send({ message: 'Hello, World!' })
@@ -60,7 +60,7 @@ describe('Express App Integration', () => {
       expect(response.body).toEqual({ message: 'Hello, World!' })
     })
 
-    it('should return 400 for POST /api/echo with invalid message', async () => {
+    it('無効なメッセージでPOST /api/echo に対して400を返す', async () => {
       const response = await request(app)
         .post('/api/echo')
         .send({ message: 123 })
@@ -69,7 +69,7 @@ describe('Express App Integration', () => {
       expect(response.body).toEqual({ error: 'Message must be a string' })
     })
 
-    it('should return 400 for POST /api/echo with no message', async () => {
+    it('メッセージなしでPOST /api/echo に対して400を返す', async () => {
       const response = await request(app)
         .post('/api/echo')
         .send({})
@@ -78,7 +78,7 @@ describe('Express App Integration', () => {
       expect(response.body).toEqual({ error: 'Message must be a string' })
     })
 
-    it('should handle empty string message', async () => {
+    it('空文字列メッセージを処理する', async () => {
       const response = await request(app)
         .post('/api/echo')
         .send({ message: '' })
@@ -88,8 +88,8 @@ describe('Express App Integration', () => {
     })
   })
 
-  describe('Root endpoint', () => {
-    it('should respond to GET /', async () => {
+  describe('ルートエンドポイント', () => {
+    it('GET / に応答する', async () => {
       const response = await request(app)
         .get('/')
 
@@ -98,15 +98,15 @@ describe('Express App Integration', () => {
     })
   })
 
-  describe('Error handling', () => {
-    it('should return 404 for non-existent routes', async () => {
+  describe('エラーハンドリング', () => {
+    it('存在しないルートに対して404を返す', async () => {
       const response = await request(app)
         .get('/non-existent-route')
 
       expect(response.status).toBe(404)
     })
 
-    it('should handle malformed JSON in request body', async () => {
+    it('リクエストボディの不正なJSONを処理する', async () => {
       const response = await request(app)
         .post('/api/echo')
         .set('Content-Type', 'application/json')
@@ -116,8 +116,8 @@ describe('Express App Integration', () => {
     })
   })
 
-  describe('Middleware', () => {
-    it('should parse JSON request bodies', async () => {
+  describe('ミドルウェア', () => {
+    it('JSONリクエストボディを解析する', async () => {
       const response = await request(app)
         .post('/api/echo')
         .send({ message: 'test' })

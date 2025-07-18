@@ -3,7 +3,7 @@ import request from 'supertest'
 import express from 'express'
 import { createRouter } from '../../../server/routes.js'
 
-// Mock the api-controller module
+// api-controller モジュールをモック
 vi.mock('../../../server/api-controller.js', () => ({
   handleEcho: vi.fn((req, res) => {
     res.json({ message: 'mocked response' })
@@ -12,12 +12,12 @@ vi.mock('../../../server/api-controller.js', () => ({
 
 describe('routes', () => {
   describe('createRouter', () => {
-    it('should create a router instance', () => {
+    it('ルーターインスタンスを作成する', () => {
       const router = createRouter()
       expect(router).toBeDefined()
     })
 
-    it('should have POST /echo endpoint configured', async () => {
+    it('POST /echo エンドポイントが設定されている', async () => {
       const app = express()
       app.use(express.json())
       app.use('/api', createRouter())
@@ -30,7 +30,7 @@ describe('routes', () => {
       expect(response.body).toEqual({ message: 'mocked response' })
     })
 
-    it('should return 404 for undefined routes', async () => {
+    it('未定義のルートに対して404を返す', async () => {
       const app = express()
       app.use(express.json())
       app.use('/api', createRouter())
@@ -41,7 +41,7 @@ describe('routes', () => {
       expect(response.status).toBe(404)
     })
 
-    it('should return 404 for GET on /echo endpoint', async () => {
+    it('/echo エンドポイントのGETに対して404を返す', async () => {
       const app = express()
       app.use(express.json())
       app.use('/api', createRouter())
@@ -52,7 +52,7 @@ describe('routes', () => {
       expect(response.status).toBe(404)
     })
 
-    it('should return 404 for PUT on /echo endpoint', async () => {
+    it('/echo エンドポイントのPUTに対して404を返す', async () => {
       const app = express()
       app.use(express.json())
       app.use('/api', createRouter())
@@ -64,7 +64,7 @@ describe('routes', () => {
       expect(response.status).toBe(404)
     })
 
-    it('should return 404 for DELETE on /echo endpoint', async () => {
+    it('/echo エンドポイントのDELETEに対して404を返す', async () => {
       const app = express()
       app.use(express.json())
       app.use('/api', createRouter())

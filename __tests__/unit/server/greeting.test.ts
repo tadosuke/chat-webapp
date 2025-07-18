@@ -3,25 +3,25 @@ import { echo } from '../../../server/greeting.js'
 
 describe('greeting', () => {
   describe('echo', () => {
-    it('should return the same message that was passed in', () => {
+    it('渡されたメッセージと同じメッセージを返す', () => {
       const message = 'Hello, World!'
       const result = echo(message)
       expect(result).toBe(message)
     })
 
-    it('should handle empty strings', () => {
+    it('空文字列を処理する', () => {
       const message = ''
       const result = echo(message)
       expect(result).toBe('')
     })
 
-    it('should handle strings with special characters', () => {
+    it('特殊文字を含む文字列を処理する', () => {
       const message = 'Hello! @#$%^&*()_+{}[]|\\:";\'<>?,./'
       const result = echo(message)
       expect(result).toBe(message)
     })
 
-    it('should handle multi-line strings', () => {
+    it('複数行の文字列を処理する', () => {
       const message = 'Hello\nWorld\nHow are you?'
       const result = echo(message)
       expect(result).toBe(message)
