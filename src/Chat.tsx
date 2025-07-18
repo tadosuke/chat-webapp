@@ -5,6 +5,7 @@ interface Message {
   id: number
   text: string
   timestamp: Date
+  sender: 'user' | 'echo'
 }
 
 /**
@@ -19,19 +20,51 @@ function Chat() {
 
   /**
    * フォーム送信時の処理
-   * メッセージが空でない場合、新しいメッセージを作成してメッセージリストに追加する
+   * メッセージが空でない場合、新しいメッセージを作成してメッセージリストに追加し、
+   * API/echoエンドポイントに送信してレスポンスを取得する
    * @param e - フォームイベント
    */
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (message.trim()) {
-      const newMessage: Message = {
+      const userMessage: Message = {
         id: Date.now(),
         text: message.trim(),
-        timestamp: new Date()
+        timestamp: new Date(),
+        sender: 'user'
       }
-      setMessages(prev => [...prev, newMessage])
+      
+      // ユーザーメッセージを追加
+      setMessages(prev => [...prev, userMessage])
+      const messageToSend = message.trim()
       setMessage('')
+
+      try {
+        // API/echoエンドポイントに送信
+        const response = await fetch('/api/echo', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ message: messageToSend })
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          const echoMessage: Message = {
+            id: Date.now() + 1,
+            text: data.message,
+            timestamp: new Date(),
+            sender: 'echo'
+          }
+          // エコーメッセージを追加
+          setMessages(prev => [...prev, echoMessage])
+        } else {
+          console.error('Echo API error:', response.status)
+        }
+      } catch (error) {
+        console.error('Failed to call echo API:', error)
+      }
     }
   }
 
@@ -78,7 +111,7 @@ function Chat() {
     <div className="chat-container">
       <div className="messages-area">
         {messages.map((msg) => (
-          <div key={msg.id} className="message-bubble">
+          <div key={msg.id} className={`message-bubble ${msg.sender === 'echo' ? 'echo-message' : 'user-message'}`}>
             {msg.text}
           </div>
         ))}
