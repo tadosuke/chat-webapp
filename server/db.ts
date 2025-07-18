@@ -25,6 +25,7 @@ export class Database {
         CREATE TABLE IF NOT EXISTS conversation_history (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           text TEXT NOT NULL,
+          sender TEXT NOT NULL DEFAULT 'user',
           timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
       `;
@@ -42,11 +43,11 @@ export class Database {
   /**
    * メッセージを保存
    */
-  public saveMessage(text: string): Promise<{ id: number; text: string }> {
+  public saveMessage(text: string, sender: 'user' | 'echo' = 'user'): Promise<{ id: number; text: string }> {
     return new Promise((resolve, reject) => {
-      const insertQuery = "INSERT INTO conversation_history (text) VALUES (?)";
+      const insertQuery = "INSERT INTO conversation_history (text, sender) VALUES (?, ?)";
       
-      this.db.run(insertQuery, [text], function(err) {
+      this.db.run(insertQuery, [text, sender], function(err) {
         if (err) {
           reject(err);
         } else {
@@ -59,7 +60,7 @@ export class Database {
   /**
    * 全メッセージを取得
    */
-  public getMessages(): Promise<Array<{ id: number; text: string; timestamp: string }>> {
+  public getMessages(): Promise<Array<{ id: number; text: string; sender: string; timestamp: string }>> {
     return new Promise((resolve, reject) => {
       const selectQuery = "SELECT * FROM conversation_history ORDER BY timestamp ASC";
       
@@ -67,7 +68,7 @@ export class Database {
         if (err) {
           reject(err);
         } else {
-          resolve(rows as Array<{ id: number; text: string; timestamp: string }>);
+          resolve(rows as Array<{ id: number; text: string; sender: string; timestamp: string }>);
         }
       });
     });

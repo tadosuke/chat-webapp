@@ -32,7 +32,7 @@ function Chat() {
             id: msg.id,
             text: msg.text,
             timestamp: new Date(msg.timestamp),
-            sender: 'user' as const // 保存されたメッセージはすべてユーザーメッセージとして扱う
+            sender: msg.sender as 'user' | 'echo' // データベースからsender情報を使用
           }))
           setMessages(formattedMessages)
         }
@@ -72,7 +72,7 @@ function Chat() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ message: messageToSend })
+          body: JSON.stringify({ message: messageToSend, sender: 'user' })
         })
 
         // API/echoエンドポイントに送信
@@ -92,6 +92,16 @@ function Chat() {
             timestamp: new Date(),
             sender: 'echo'
           }
+          
+          // エコーメッセージをデータベースに保存
+          await fetch('/api/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: data.message, sender: 'echo' })
+          })
+          
           // エコーメッセージを追加
           setMessages(prev => [...prev, echoMessage])
         } else {

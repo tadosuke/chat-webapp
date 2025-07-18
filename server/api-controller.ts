@@ -34,7 +34,7 @@ export function handleEcho(req: Request, res: Response): void {
  */
 export async function saveMessage(req: Request, res: Response): Promise<void> {
   try {
-    const { message } = req.body;
+    const { message, sender = 'user' } = req.body;
 
     // メッセージが文字列でない場合はエラーを返す
     if (typeof message !== "string") {
@@ -42,8 +42,14 @@ export async function saveMessage(req: Request, res: Response): Promise<void> {
       return;
     }
 
+    // senderが有効な値でない場合はエラーを返す
+    if (sender !== 'user' && sender !== 'echo') {
+      res.status(400).json({ error: "Sender must be 'user' or 'echo'" });
+      return;
+    }
+
     const db = getDatabase();
-    const result = await db.saveMessage(message);
+    const result = await db.saveMessage(message, sender);
 
     res.json({ id: result.id, text: result.text });
   } catch (error) {

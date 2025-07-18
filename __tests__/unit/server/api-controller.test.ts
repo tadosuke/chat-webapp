@@ -129,7 +129,7 @@ describe('api-controller', () => {
 
       await saveMessage(req, res)
 
-      expect(mockSaveMessage).toHaveBeenCalledWith('Test message')
+      expect(mockSaveMessage).toHaveBeenCalledWith('Test message', 'user')
       expect(json).toHaveBeenCalledWith({ id: 1, text: 'Test message' })
     })
 
@@ -158,6 +158,28 @@ describe('api-controller', () => {
       expect(status).toHaveBeenCalledWith(500)
       expect(json).toHaveBeenCalledWith({ error: 'Database error' })
     })
+
+    it('echoメッセージを保存する', async () => {
+      const req = createMockRequest({ message: 'Echo message', sender: 'echo' })
+      const { res, json } = createMockResponse()
+
+      mockSaveMessage.mockResolvedValue({ id: 2, text: 'Echo message' })
+
+      await saveMessage(req, res)
+
+      expect(mockSaveMessage).toHaveBeenCalledWith('Echo message', 'echo')
+      expect(json).toHaveBeenCalledWith({ id: 2, text: 'Echo message' })
+    })
+
+    it('無効なsenderが指定された場合、400エラーを返す', async () => {
+      const req = createMockRequest({ message: 'Test message', sender: 'invalid' })
+      const { res, json, status } = createMockResponse()
+
+      await saveMessage(req, res)
+
+      expect(status).toHaveBeenCalledWith(400)
+      expect(json).toHaveBeenCalledWith({ error: "Sender must be 'user' or 'echo'" })
+    })
   })
 
   describe('getMessages', () => {
@@ -175,8 +197,8 @@ describe('api-controller', () => {
       const { res, json } = createMockResponse()
 
       const mockMessages = [
-        { id: 1, text: 'Message 1', timestamp: '2023-01-01 00:00:00' },
-        { id: 2, text: 'Message 2', timestamp: '2023-01-01 00:01:00' }
+        { id: 1, text: 'Message 1', sender: 'user', timestamp: '2023-01-01 00:00:00' },
+        { id: 2, text: 'Message 2', sender: 'echo', timestamp: '2023-01-01 00:01:00' }
       ]
       mockGetMessages.mockResolvedValue(mockMessages)
 

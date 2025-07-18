@@ -53,6 +53,30 @@ describe('Database', () => {
       expect(result1.text).toBe(message1)
       expect(result2.text).toBe(message2)
     })
+
+    it('senderパラメータ省略時はuserとして保存される', async () => {
+      const message = 'Test message'
+      const result = await db.saveMessage(message)
+
+      expect(result.id).toBeTypeOf('number')
+      expect(result.text).toBe(message)
+
+      const messages = await db.getMessages()
+      expect(messages).toHaveLength(1)
+      expect(messages[0].sender).toBe('user')
+    })
+
+    it('senderパラメータを指定してメッセージを保存', async () => {
+      const message = 'Echo message'
+      const result = await db.saveMessage(message, 'echo')
+
+      expect(result.id).toBeTypeOf('number')
+      expect(result.text).toBe(message)
+
+      const messages = await db.getMessages()
+      expect(messages).toHaveLength(1)
+      expect(messages[0].sender).toBe('echo')
+    })
   })
 
   describe('getMessages', () => {
@@ -77,6 +101,24 @@ describe('Database', () => {
       expect(messages[1].id).toBeTypeOf('number')
       expect(messages[0].timestamp).toBeTypeOf('string')
       expect(messages[1].timestamp).toBeTypeOf('string')
+      expect(messages[0].sender).toBe('user') // デフォルトでuser
+      expect(messages[1].sender).toBe('user') // デフォルトでuser
+    })
+
+    it('senderを指定してメッセージを保存・取得', async () => {
+      const userMessage = 'User message'
+      const echoMessage = 'Echo message'
+
+      await db.saveMessage(userMessage, 'user')
+      await db.saveMessage(echoMessage, 'echo')
+
+      const messages = await db.getMessages()
+
+      expect(messages).toHaveLength(2)
+      expect(messages[0].text).toBe(userMessage)
+      expect(messages[0].sender).toBe('user')
+      expect(messages[1].text).toBe(echoMessage)
+      expect(messages[1].sender).toBe('echo')
     })
 
     it('メッセージが時系列順で取得される', async () => {
