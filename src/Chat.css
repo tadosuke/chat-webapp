@@ -20,7 +20,8 @@
 
 .message-bubble {
   align-self: flex-end;
-  max-width: 70%;
+  max-width: 60%;
+  margin-right: 10%;
   padding: 0.75rem 1rem;
   background-color: #646cff;
   color: white;
