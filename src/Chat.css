@@ -33,7 +33,7 @@
 .chat-form {
   display: flex;
   gap: 0.5rem;
-  align-items: center;
+  align-items: flex-end;
   padding: 1rem;
   background-color: rgba(255, 255, 255, 0.05);
   border-top: 1px solid #333;
@@ -48,7 +48,12 @@
   color: rgba(255, 255, 255, 0.87);
   font-family: inherit;
   font-size: 1em;
+  line-height: 1.5;
+  min-height: calc(1.5em * 4); /* 4 rows */
+  max-height: calc(1.5em * 12); /* 12 rows */
+  resize: none;
   transition: border-color 0.25s;
+  overflow-y: hidden;
 }
 
 .chat-input:focus {
