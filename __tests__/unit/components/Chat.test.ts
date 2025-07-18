@@ -12,17 +12,17 @@ const React = {
 vi.mock('react', () => React)
 
 // Mock child components
-vi.mock('../../../src/ChatDisplay', () => ({
+vi.mock('../../../src/components/ChatDisplay', () => ({
   default: vi.fn(() => 'ChatDisplay'),
   Message: {},
 }))
 
-vi.mock('../../../src/ChatInput', () => ({
+vi.mock('../../../src/components/ChatInput', () => ({
   default: vi.fn(() => 'ChatInput'),
 }))
 
 // Mock the CSS import
-vi.mock('../../../src/Chat.css', () => ({}))
+vi.mock('../../../src/components/Chat.css', () => ({}))
 
 // Mock fetch
 global.fetch = vi.fn()
@@ -41,18 +41,18 @@ describe('Chat', () => {
   })
 
   it('should export Chat component', async () => {
-    const module = await import('../../../src/Chat')
+    const module = await import('../../../src/components/Chat')
     expect(module.default).toBeDefined()
     expect(typeof module.default).toBe('function')
   })
 
   it('should be a named function called Chat', async () => {
-    const module = await import('../../../src/Chat')
+    const module = await import('../../../src/components/Chat')
     expect(module.default.name).toBe('Chat')
   })
 
   it('should use React hooks', async () => {
-    const module = await import('../../../src/Chat')
+    const module = await import('../../../src/components/Chat')
     
     // Simulate calling the component
     module.default()
@@ -63,7 +63,7 @@ describe('Chat', () => {
   })
 
   it('should load messages on mount', async () => {
-    const module = await import('../../../src/Chat')
+    const module = await import('../../../src/components/Chat')
     
     // Call the component
     module.default()
@@ -85,11 +85,11 @@ describe('Chat integration', () => {
   })
 
   it('should compose ChatDisplay and ChatInput components', async () => {
-    const ChatDisplay = (await import('../../../src/ChatDisplay')).default
-    const ChatInput = (await import('../../../src/ChatInput')).default
+    const ChatDisplay = (await import('../../../src/components/ChatDisplay')).default
+    const ChatInput = (await import('../../../src/components/ChatInput')).default
     
     // Import and call the Chat component
-    const Chat = (await import('../../../src/Chat')).default
+    const Chat = (await import('../../../src/components/Chat')).default
     Chat()
     
     // Verify that the mocked components were imported
