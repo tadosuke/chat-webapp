@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { handleEcho } from "./api-controller.js";
+import { handleEcho, saveMessage, getMessages } from "./api-controller.js";
 
 /**
  * API ルーティングの設定
@@ -10,6 +10,12 @@ export function createRouter(): Router {
 
   // POST /echo エンドポイント
   router.post("/echo", handleEcho);
+
+  // POST /messages エンドポイント（メッセージ保存）
+  router.post("/messages", saveMessage);
+
+  // GET /messages エンドポイント（メッセージ取得）
+  router.get("/messages", getMessages);
 
   return router;
 }

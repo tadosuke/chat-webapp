@@ -16,6 +16,19 @@ vi.mock('../../../server/routes.js', () => ({
       }
       res.json({ message })
     })
+    router.post('/messages', (req, res) => {
+      const { message } = req.body
+      if (typeof message !== 'string') {
+        res.status(400).json({ error: 'Message must be a string' })
+        return
+      }
+      res.json({ id: 1, text: message })
+    })
+    router.get('/messages', (req, res) => {
+      res.json([
+        { id: 1, text: 'Test message', timestamp: '2023-01-01 00:00:00' }
+      ])
+    })
     return router
   })
 }))
@@ -85,6 +98,36 @@ describe('Express App Integration', () => {
 
       expect(response.status).toBe(200)
       expect(response.body).toEqual({ message: '' })
+    })
+  })
+
+  describe('メッセージ保存・取得エンドポイント', () => {
+    it('POST /api/messages でメッセージを保存', async () => {
+      const response = await request(app)
+        .post('/api/messages')
+        .send({ message: 'Test message' })
+
+      expect(response.status).toBe(200)
+      expect(response.body).toEqual({ id: 1, text: 'Test message' })
+    })
+
+    it('POST /api/messages で無効なメッセージに対して400を返す', async () => {
+      const response = await request(app)
+        .post('/api/messages')
+        .send({ message: 123 })
+
+      expect(response.status).toBe(400)
+      expect(response.body).toEqual({ error: 'Message must be a string' })
+    })
+
+    it('GET /api/messages でメッセージ一覧を取得', async () => {
+      const response = await request(app)
+        .get('/api/messages')
+
+      expect(response.status).toBe(200)
+      expect(response.body).toEqual([
+        { id: 1, text: 'Test message', timestamp: '2023-01-01 00:00:00' }
+      ])
     })
   })
 
