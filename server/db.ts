@@ -75,6 +75,23 @@ export class Database {
   }
 
   /**
+   * 全メッセージを削除
+   */
+  public clearMessages(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const deleteQuery = "DELETE FROM conversation_history";
+      
+      this.db.run(deleteQuery, [], (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+  }
+
+  /**
    * データベース接続を閉じる
    */
   public close(): Promise<void> {
