@@ -1,20 +1,38 @@
 import { useState } from 'react'
 import './Chat.css'
 
+interface Message {
+  id: number
+  text: string
+  timestamp: Date
+}
+
 function Chat() {
   const [message, setMessage] = useState('')
+  const [messages, setMessages] = useState<Message[]>([])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (message.trim()) {
-      console.log('送信されたメッセージ:', message)
+      const newMessage: Message = {
+        id: Date.now(),
+        text: message.trim(),
+        timestamp: new Date()
+      }
+      setMessages(prev => [...prev, newMessage])
       setMessage('')
     }
   }
 
   return (
     <div className="chat-container">
-      <h2>チャット</h2>
+      <div className="messages-area">
+        {messages.map((msg) => (
+          <div key={msg.id} className="message-bubble">
+            {msg.text}
+          </div>
+        ))}
+      </div>
       <form onSubmit={handleSubmit} className="chat-form">
         <input
           type="text"
