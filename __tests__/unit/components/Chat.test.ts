@@ -3,10 +3,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 // Mock React 
 const mockUseState = vi.fn()
 const mockUseEffect = vi.fn()
+const mockUseCallback = vi.fn()
 
 const React = {
   useState: mockUseState,
-  useEffect: mockUseEffect
+  useEffect: mockUseEffect,
+  useCallback: mockUseCallback
 }
 
 vi.mock('react', () => React)
@@ -21,17 +23,38 @@ vi.mock('../../../src/components/ChatInput', () => ({
   default: vi.fn(() => 'ChatInput'),
 }))
 
+vi.mock('../../../src/components/ConversationList', () => ({
+  default: vi.fn(() => 'ConversationList'),
+}))
+
+vi.mock('../../../src/components/ResizeHandle', () => ({
+  default: vi.fn(() => 'ResizeHandle'),
+}))
+
 // Mock the CSS import
 vi.mock('../../../src/components/Chat/Chat.css', () => ({}))
 
 // Mock fetch
 global.fetch = vi.fn()
 
+// Mock localStorage
+const mockLocalStorage = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+}
+Object.defineProperty(global, 'localStorage', {
+  value: mockLocalStorage,
+  writable: true,
+})
+
 describe('Chat', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockUseState.mockReturnValue([[], vi.fn()])
     mockUseEffect.mockImplementation(() => {})
+    mockUseCallback.mockImplementation((fn) => fn)
     
     // Mock fetch to return empty array
     global.fetch.mockResolvedValue({
@@ -78,6 +101,7 @@ describe('Chat integration', () => {
     vi.clearAllMocks()
     mockUseState.mockReturnValue([[], vi.fn()])
     mockUseEffect.mockImplementation(() => {})
+    mockUseCallback.mockImplementation((fn) => fn)
     global.fetch.mockResolvedValue({
       ok: true,
       json: () => Promise.resolve([])

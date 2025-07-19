@@ -1,0 +1,42 @@
+.resize-handle {
+  width: 4px;
+  background-color: transparent;
+  cursor: col-resize;
+  flex-shrink: 0;
+  position: relative;
+  transition: background-color 0.2s ease;
+  user-select: none;
+}
+
+.resize-handle:hover {
+  background-color: #007bff;
+}
+
+.resize-handle:active {
+  background-color: #0056b3;
+}
+
+/* リサイズ中のガイドライン表示 */
+.resize-handle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background-color: #333;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.resize-handle:hover::before {
+  opacity: 1;
+}
+
+/* ライトテーマ対応 */
+@media (prefers-color-scheme: light) {
+  .resize-handle::before {
+    background-color: #dee2e6;
+  }
+}
