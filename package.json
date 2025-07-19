@@ -10,7 +10,8 @@
     "build:server": "tsc -p tsconfig.server.json",
     "build:all": "npm run build:src && npm run build:server",
     "run:server": "node dist-server/index.js",
-    "test": "vitest"
+    "test": "vitest",
+    "db:clear": "node scripts/db-clear.js"
   },
   "dependencies": {
     "express": "5.1.0",
