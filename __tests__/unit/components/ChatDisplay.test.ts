@@ -14,7 +14,7 @@ const React = {
 vi.mock('react', () => React)
 
 // Mock the CSS import
-vi.mock('../../../src/ChatDisplay.css', () => ({}))
+vi.mock('../../../src/components/ChatDisplay/ChatDisplay.css', () => ({}))
 
 describe('ChatDisplay', () => {
   beforeEach(() => {
@@ -22,13 +22,13 @@ describe('ChatDisplay', () => {
   })
 
   it('should export Message interface and ChatDisplayProps interface', async () => {
-    const module = await import('../../../src/ChatDisplay')
+    const module = await import('../../../src/components/ChatDisplay')
     expect(module.default).toBeDefined()
     expect(typeof module.default).toBe('function')
   })
 
   it('should be a named function called ChatDisplay', async () => {
-    const module = await import('../../../src/ChatDisplay')
+    const module = await import('../../../src/components/ChatDisplay')
     expect(module.default.name).toBe('ChatDisplay')
   })
 })

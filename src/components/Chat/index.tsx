@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import './Chat.css'
-import ChatDisplay, { type Message } from './ChatDisplay'
-import ChatInput from './ChatInput'
+import ChatDisplay, { type Message } from '../ChatDisplay'
+import ChatInput from '../ChatInput'
 
 /**
  * チャットコンポーネント
