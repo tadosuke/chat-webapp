@@ -11,6 +11,7 @@ interface ConversationListProps {
   onConversationSelect: (conversationId: number) => void
   selectedConversationId: number | null
   onNewConversation: () => void
+  refreshTrigger?: number // 履歴リストを再読み込みするためのトリガー
 }
 
 /**
@@ -21,7 +22,7 @@ interface ConversationListProps {
  * @param onNewConversation - 新規会話作成のコールバック関数
  * @returns 会話履歴リストのJSX要素
  */
-function ConversationList({ onConversationSelect, selectedConversationId, onNewConversation }: ConversationListProps) {
+function ConversationList({ onConversationSelect, selectedConversationId, onNewConversation, refreshTrigger }: ConversationListProps) {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -51,6 +52,13 @@ function ConversationList({ onConversationSelect, selectedConversationId, onNewC
   useEffect(() => {
     loadConversations()
   }, [])
+
+  // refreshTriggerが変更された時に履歴を再読み込み
+  useEffect(() => {
+    if (refreshTrigger) {
+      loadConversations()
+    }
+  }, [refreshTrigger])
 
   /**
    * 会話タイトルを表示用にフォーマットする

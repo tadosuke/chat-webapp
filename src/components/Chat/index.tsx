@@ -12,6 +12,7 @@ import ConversationList from '../ConversationList'
 function Chat() {
   const [messages, setMessages] = useState<Message[]>([])
   const [currentConversationId, setCurrentConversationId] = useState<number | null>(null)
+  const [refreshConversations, setRefreshConversations] = useState<number>(0)
 
   /**
    * 初期化時に会話履歴から最新の会話を読み込む
@@ -110,9 +111,10 @@ function Chat() {
         // エコーメッセージを追加
         setMessages(prev => [...prev, echoMessage])
 
-        // 新しい会話が作成された場合、会話IDを更新
+        // 新しい会話が作成された場合、会話IDを更新し、履歴リストを更新
         if (data.conversationId && !currentConversationId) {
           setCurrentConversationId(data.conversationId)
+          setRefreshConversations(prev => prev + 1) // トリガーを変更して履歴リストを更新
         }
       } else {
         console.error('Echo API error:', response.status)
@@ -122,46 +124,17 @@ function Chat() {
     }
   }
 
-  /**
-   * 会話履歴削除時の処理
-   * データベースから全ての会話履歴を削除し、表示をクリアする
-   */
-  const handleClearMessages = async () => {
-    try {
-      const response = await fetch('/api/messages', {
-        method: 'DELETE'
-      })
-
-      if (response.ok) {
-        // 成功時はメッセージリストをクリアし、会話IDもリセット
-        setMessages([])
-        setCurrentConversationId(null)
-      } else {
-        console.error('Clear messages API error:', response.status)
-      }
-    } catch (error) {
-      console.error('Failed to clear messages:', error)
-    }
-  }
-
   return (
     <div className="app-container">
       <ConversationList
         onConversationSelect={loadConversation}
         selectedConversationId={currentConversationId}
         onNewConversation={startNewConversation}
+        refreshTrigger={refreshConversations}
       />
       <div className="chat-container">
         <div className="chat-header">
           <h1 className="chat-title">チャット</h1>
-          <button 
-            className="clear-button" 
-            onClick={handleClearMessages}
-            title="全会話を削除"
-          >
-            <span className="material-icons">delete</span>
-            全削除
-          </button>
         </div>
         <ChatDisplay messages={messages} />
         <ChatInput onSubmit={handleMessageSubmit} />
