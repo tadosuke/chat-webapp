@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { Request, Response } from 'express'
-import { handleEcho, getMessages, clearMessages, deleteConversation } from '../../../server/api-controller.js'
+import { handleEcho, deleteConversation } from '../../../server/api-controller.js'
 
 // greeting モジュールをモック
 vi.mock('../../../server/greeting.js', () => ({
@@ -9,8 +9,6 @@ vi.mock('../../../server/greeting.js', () => ({
 
 // db モジュールをモック
 const mockSaveMessage = vi.fn()
-const mockGetMessages = vi.fn()
-const mockClearMessages = vi.fn()
 const mockCreateConversation = vi.fn()
 const mockGetConversations = vi.fn()
 const mockGetMessagesByConversationId = vi.fn()
@@ -18,8 +16,6 @@ const mockDeleteConversation = vi.fn()
 vi.mock('../../../server/db.js', () => ({
   getDatabase: () => ({
     saveMessage: mockSaveMessage,
-    getMessages: mockGetMessages,
-    clearMessages: mockClearMessages,
     createConversation: mockCreateConversation,
     getConversations: mockGetConversations,
     getMessagesByConversationId: mockGetMessagesByConversationId,
@@ -157,80 +153,6 @@ describe('api-controller', () => {
 
       expect(status).toHaveBeenCalledWith(500)
       expect(json).toHaveBeenCalledWith({ error: 'Internal server error' })
-    })
-  })
-
-  describe('getMessages', () => {
-    const createMockRequest = (): Request => ({} as Request)
-
-    const createMockResponse = (): { res: Response; json: any; status: any } => {
-      const json = vi.fn()
-      const status = vi.fn(() => ({ json }))
-      const res = { json, status } as unknown as Response
-      return { res, json, status }
-    }
-
-    it('メッセージ一覧を正常に取得して返す', async () => {
-      const req = createMockRequest()
-      const { res, json } = createMockResponse()
-
-      const mockMessages = [
-        { id: 1, text: 'Message 1', sender: 'user', timestamp: '2023-01-01 00:00:00' },
-        { id: 2, text: 'Message 2', sender: 'echo', timestamp: '2023-01-01 00:01:00' }
-      ]
-      mockGetMessages.mockResolvedValue(mockMessages)
-
-      await getMessages(req, res)
-
-      expect(mockGetMessages).toHaveBeenCalled()
-      expect(json).toHaveBeenCalledWith(mockMessages)
-    })
-
-    it('データベースエラー時に500エラーを返す', async () => {
-      const req = createMockRequest()
-      const { res, json, status } = createMockResponse()
-
-      mockGetMessages.mockRejectedValue(new Error('DB Error'))
-
-      await getMessages(req, res)
-
-      expect(status).toHaveBeenCalledWith(500)
-      expect(json).toHaveBeenCalledWith({ error: 'Database error' })
-    })
-  })
-
-  describe('clearMessages', () => {
-    const createMockRequest = (): Request => ({} as Request)
-
-    const createMockResponse = (): { res: Response; json: any; status: any } => {
-      const json = vi.fn()
-      const status = vi.fn(() => ({ json }))
-      const res = { json, status } as unknown as Response
-      return { res, json, status }
-    }
-
-    it('正常にメッセージを削除し、成功レスポンスを返す', async () => {
-      const req = createMockRequest()
-      const { res, json } = createMockResponse()
-
-      mockClearMessages.mockResolvedValue(undefined)
-
-      await clearMessages(req, res)
-
-      expect(mockClearMessages).toHaveBeenCalledTimes(1)
-      expect(json).toHaveBeenCalledWith({ success: true })
-    })
-
-    it('データベースエラー時に500エラーを返す', async () => {
-      const req = createMockRequest()
-      const { res, json, status } = createMockResponse()
-
-      mockClearMessages.mockRejectedValue(new Error('DB Error'))
-
-      await clearMessages(req, res)
-
-      expect(status).toHaveBeenCalledWith(500)
-      expect(json).toHaveBeenCalledWith({ error: 'Database error' })
     })
   })
 

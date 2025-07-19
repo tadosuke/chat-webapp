@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { handleEcho, getMessages, clearMessages, getConversations, getConversationMessages, deleteConversation } from "./api-controller.js";
+import { handleEcho, getConversations, getConversationMessages, deleteConversation } from "./api-controller.js";
 
 /**
  * API ルーティングの設定
@@ -10,12 +10,6 @@ export function createRouter(): Router {
 
   // POST /echo エンドポイント
   router.post("/echo", handleEcho);
-
-  // GET /messages エンドポイント（メッセージ取得）
-  router.get("/messages", getMessages);
-
-  // DELETE /messages エンドポイント（メッセージ削除）
-  router.delete("/messages", clearMessages);
 
   // GET /conversations エンドポイント（会話一覧取得）
   router.get("/conversations", getConversations);
