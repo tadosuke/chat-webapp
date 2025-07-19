@@ -41,6 +41,7 @@ function Chat() {
    * メッセージ送信時の処理
    * 新しいメッセージを作成してメッセージリストに追加し、
    * API/echoエンドポイントに送信してレスポンスを取得する
+   * エコーAPIが自動的にユーザーメッセージとエコーメッセージの両方をデータベースに保存する
    * @param messageText - 送信するメッセージのテキスト
    */
   const handleMessageSubmit = async (messageText: string) => {
@@ -55,16 +56,7 @@ function Chat() {
     setMessages(prev => [...prev, userMessage])
 
     try {
-      // メッセージをデータベースに保存
-      await fetch('/api/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message: messageText, sender: 'user' })
-      })
-
-      // API/echoエンドポイントに送信
+      // API/echoエンドポイントに送信（バックエンドで自動的にメッセージが保存される）
       const response = await fetch('/api/echo', {
         method: 'POST',
         headers: {
@@ -82,22 +74,13 @@ function Chat() {
           sender: 'echo'
         }
         
-        // エコーメッセージをデータベースに保存
-        await fetch('/api/messages', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ message: data.message, sender: 'echo' })
-        })
-        
         // エコーメッセージを追加
         setMessages(prev => [...prev, echoMessage])
       } else {
         console.error('Echo API error:', response.status)
       }
     } catch (error) {
-      console.error('Failed to call APIs:', error)
+      console.error('Failed to call Echo API:', error)
     }
   }
 

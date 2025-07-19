@@ -5,8 +5,9 @@ import { getDatabase } from "./db.js";
 /**
  * エコー API のコントローラー
  * リクエストからメッセージを取得し、greeting.ts の echo 関数を呼び出して結果を返す
+ * 同時にユーザーメッセージとエコーメッセージの両方をデータベースに保存する
  */
-export function handleEcho(req: Request, res: Response): void {
+export async function handleEcho(req: Request, res: Response): Promise<void> {
   try {
     // リクエストボディからメッセージを取得
     const { message } = req.body;
@@ -17,44 +18,23 @@ export function handleEcho(req: Request, res: Response): void {
       return;
     }
 
+    const db = getDatabase();
+
+    // ユーザーメッセージをデータベースに保存
+    await db.saveMessage(message, 'user');
+
     // greeting.ts の echo 関数を呼び出し
     const result = echo(message);
 
+    // エコーメッセージをデータベースに保存
+    await db.saveMessage(result, 'echo');
+
     // レスポンスとして同じメッセージを返す
     res.json({ message: result });
-  } catch {
+  } catch (error) {
+    console.error("Echo API error:", error);
     // エラーハンドリング
     res.status(500).json({ error: "Internal server error" });
-  }
-}
-
-/**
- * メッセージ保存 API のコントローラー
- * リクエストからメッセージを取得し、データベースに保存する
- */
-export async function saveMessage(req: Request, res: Response): Promise<void> {
-  try {
-    const { message, sender = 'user' } = req.body;
-
-    // メッセージが文字列でない場合はエラーを返す
-    if (typeof message !== "string") {
-      res.status(400).json({ error: "Message must be a string" });
-      return;
-    }
-
-    // senderが有効な値でない場合はエラーを返す
-    if (sender !== 'user' && sender !== 'echo') {
-      res.status(400).json({ error: "Sender must be 'user' or 'echo'" });
-      return;
-    }
-
-    const db = getDatabase();
-    const result = await db.saveMessage(message, sender);
-
-    res.json({ id: result.id, text: result.text });
-  } catch (error) {
-    console.error("Save message error:", error);
-    res.status(500).json({ error: "Database error" });
   }
 }
 
