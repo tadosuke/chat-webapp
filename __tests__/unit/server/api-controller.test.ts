@@ -11,11 +11,17 @@ vi.mock('../../../server/greeting.js', () => ({
 const mockSaveMessage = vi.fn()
 const mockGetMessages = vi.fn()
 const mockClearMessages = vi.fn()
+const mockCreateConversation = vi.fn()
+const mockGetConversations = vi.fn()
+const mockGetMessagesByConversationId = vi.fn()
 vi.mock('../../../server/db.js', () => ({
   getDatabase: () => ({
     saveMessage: mockSaveMessage,
     getMessages: mockGetMessages,
-    clearMessages: mockClearMessages
+    clearMessages: mockClearMessages,
+    createConversation: mockCreateConversation,
+    getConversations: mockGetConversations,
+    getMessagesByConversationId: mockGetMessagesByConversationId
   })
 }))
 
@@ -40,15 +46,20 @@ describe('api-controller', () => {
       const req = createMockRequest({ message: 'Hello, World!' })
       const { res, json } = createMockResponse()
 
+      mockCreateConversation.mockResolvedValue({ id: 1, title: 'Hello, World!' })
       mockSaveMessage.mockResolvedValue({ id: 1, text: 'Hello, World!' })
 
       await handleEcho(req, res)
 
+      // 新しい会話が作成されることを確認（conversationIdが指定されていないため）
+      expect(mockCreateConversation).toHaveBeenCalledTimes(1)
+      expect(mockCreateConversation).toHaveBeenCalledWith('Hello, World!')
+      
       // ユーザーメッセージとエコーメッセージの両方が保存されることを確認
       expect(mockSaveMessage).toHaveBeenCalledTimes(2)
-      expect(mockSaveMessage).toHaveBeenNthCalledWith(1, 'Hello, World!', 'user')
-      expect(mockSaveMessage).toHaveBeenNthCalledWith(2, 'Hello, World!', 'echo')
-      expect(json).toHaveBeenCalledWith({ message: 'Hello, World!' })
+      expect(mockSaveMessage).toHaveBeenNthCalledWith(1, 'Hello, World!', 'user', 1)
+      expect(mockSaveMessage).toHaveBeenNthCalledWith(2, 'Hello, World!', 'echo', 1)
+      expect(json).toHaveBeenCalledWith({ message: 'Hello, World!', conversationId: 1 })
     })
 
     it('メッセージが文字列でない場合、400エラーを返し、データベースに保存しない', async () => {
@@ -110,14 +121,15 @@ describe('api-controller', () => {
       const req = createMockRequest({ message: '' })
       const { res, json } = createMockResponse()
 
+      mockCreateConversation.mockResolvedValue({ id: 1, title: '' })
       mockSaveMessage.mockResolvedValue({ id: 1, text: '' })
 
       await handleEcho(req, res)
 
       expect(mockSaveMessage).toHaveBeenCalledTimes(2)
-      expect(mockSaveMessage).toHaveBeenNthCalledWith(1, '', 'user')
-      expect(mockSaveMessage).toHaveBeenNthCalledWith(2, '', 'echo')
-      expect(json).toHaveBeenCalledWith({ message: '' })
+      expect(mockSaveMessage).toHaveBeenNthCalledWith(1, '', 'user', 1)
+      expect(mockSaveMessage).toHaveBeenNthCalledWith(2, '', 'echo', 1)
+      expect(json).toHaveBeenCalledWith({ message: '', conversationId: 1 })
     })
 
     it('リクエストボディにmessageプロパティがない場合、400エラーを返し、データベースに保存しない', async () => {
