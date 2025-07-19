@@ -32,8 +32,10 @@ describe('Database', () => {
 
   describe('saveMessage', () => {
     it('メッセージが正常に保存される', async () => {
+      // まず会話を作成
+      const conversation = await db.createConversation('Test conversation')
       const message = 'Test message'
-      const result = await db.saveMessage(message)
+      const result = await db.saveMessage(message, 'user', conversation.id)
 
       expect(result.id).toBeTypeOf('number')
       expect(result.text).toBe(message)
@@ -41,11 +43,13 @@ describe('Database', () => {
     })
 
     it('複数のメッセージが保存される', async () => {
+      // まず会話を作成
+      const conversation = await db.createConversation('Test conversation')
       const message1 = 'First message'
       const message2 = 'Second message'
 
-      const result1 = await db.saveMessage(message1)
-      const result2 = await db.saveMessage(message2)
+      const result1 = await db.saveMessage(message1, 'user', conversation.id)
+      const result2 = await db.saveMessage(message2, 'user', conversation.id)
 
       expect(result1.id).toBeTypeOf('number')
       expect(result2.id).toBeTypeOf('number')
@@ -55,25 +59,29 @@ describe('Database', () => {
     })
 
     it('senderパラメータ省略時はuserとして保存される', async () => {
+      // まず会話を作成
+      const conversation = await db.createConversation('Test conversation')
       const message = 'Test message'
-      const result = await db.saveMessage(message)
+      const result = await db.saveMessage(message, 'user', conversation.id)
 
       expect(result.id).toBeTypeOf('number')
       expect(result.text).toBe(message)
 
-      const messages = await db.getMessages()
+      const messages = await db.getMessagesByConversationId(conversation.id)
       expect(messages).toHaveLength(1)
       expect(messages[0].sender).toBe('user')
     })
 
     it('senderパラメータを指定してメッセージを保存', async () => {
+      // まず会話を作成
+      const conversation = await db.createConversation('Test conversation')
       const message = 'Echo message'
-      const result = await db.saveMessage(message, 'echo')
+      const result = await db.saveMessage(message, 'echo', conversation.id)
 
       expect(result.id).toBeTypeOf('number')
       expect(result.text).toBe(message)
 
-      const messages = await db.getMessages()
+      const messages = await db.getMessagesByConversationId(conversation.id)
       expect(messages).toHaveLength(1)
       expect(messages[0].sender).toBe('echo')
     })
@@ -86,11 +94,13 @@ describe('Database', () => {
     })
 
     it('保存されたメッセージを取得', async () => {
+      // まず会話を作成
+      const conversation = await db.createConversation('Test conversation')
       const message1 = 'First message'
       const message2 = 'Second message'
 
-      await db.saveMessage(message1)
-      await db.saveMessage(message2)
+      await db.saveMessage(message1, 'user', conversation.id)
+      await db.saveMessage(message2, 'user', conversation.id)
 
       const messages = await db.getMessages()
 
@@ -106,11 +116,13 @@ describe('Database', () => {
     })
 
     it('senderを指定してメッセージを保存・取得', async () => {
+      // まず会話を作成
+      const conversation = await db.createConversation('Test conversation')
       const userMessage = 'User message'
       const echoMessage = 'Echo message'
 
-      await db.saveMessage(userMessage, 'user')
-      await db.saveMessage(echoMessage, 'echo')
+      await db.saveMessage(userMessage, 'user', conversation.id)
+      await db.saveMessage(echoMessage, 'echo', conversation.id)
 
       const messages = await db.getMessages()
 
@@ -122,16 +134,18 @@ describe('Database', () => {
     })
 
     it('メッセージが時系列順で取得される', async () => {
+      // まず会話を作成
+      const conversation = await db.createConversation('Test conversation')
       const message1 = 'First'
       const message2 = 'Second'
       const message3 = 'Third'
 
-      const result1 = await db.saveMessage(message1)
+      const result1 = await db.saveMessage(message1, 'user', conversation.id)
       // 少し待機してタイムスタンプに差をつける
       await new Promise(resolve => setTimeout(resolve, 10))
-      const result2 = await db.saveMessage(message2)
+      const result2 = await db.saveMessage(message2, 'user', conversation.id)
       await new Promise(resolve => setTimeout(resolve, 10))
-      const result3 = await db.saveMessage(message3)
+      const result3 = await db.saveMessage(message3, 'user', conversation.id)
 
       const messages = await db.getMessages()
 
@@ -144,9 +158,10 @@ describe('Database', () => {
 
   describe('clearMessages', () => {
     it('すべてのメッセージを削除する', async () => {
-      // 最初にメッセージを保存
-      await db.saveMessage('Test message 1', 'user')
-      await db.saveMessage('Test message 2', 'echo')
+      // まず会話を作成してメッセージを保存
+      const conversation = await db.createConversation('Test conversation')
+      await db.saveMessage('Test message 1', 'user', conversation.id)
+      await db.saveMessage('Test message 2', 'echo', conversation.id)
 
       // メッセージが存在することを確認
       const messagesBefore = await db.getMessages()

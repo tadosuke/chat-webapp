@@ -13,6 +13,12 @@ vi.mock('../../../server/api-controller.js', () => ({
   }),
   clearMessages: vi.fn((req, res) => {
     res.json({ success: true })
+  }),
+  getConversations: vi.fn((req, res) => {
+    res.json([{ id: 1, title: 'mocked conversation', created_at: '2023-01-01 00:00:00' }])
+  }),
+  getConversationMessages: vi.fn((req, res) => {
+    res.json([{ id: 1, text: 'mocked message', timestamp: '2023-01-01 00:00:00', sender: 'user' }])
   })
 }))
 

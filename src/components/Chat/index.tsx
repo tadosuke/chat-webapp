@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import './Chat.css'
 import ChatDisplay, { type Message } from '../ChatDisplay'
 import ChatInput from '../ChatInput'
+import ConversationList from '../ConversationList'
 
 /**
  * チャットコンポーネント
@@ -10,32 +11,62 @@ import ChatInput from '../ChatInput'
  */
 function Chat() {
   const [messages, setMessages] = useState<Message[]>([])
+  const [currentConversationId, setCurrentConversationId] = useState<number | null>(null)
+  const [refreshConversations, setRefreshConversations] = useState<number>(0)
 
   /**
-   * 履歴からメッセージを読み込む
+   * 初期化時に会話履歴から最新の会話を読み込む
    */
   useEffect(() => {
-    const loadMessages = async () => {
+    const loadInitialConversation = async () => {
       try {
-        const response = await fetch('/api/messages')
+        const response = await fetch('/api/conversations')
         if (response.ok) {
-          const data = await response.json()
-          // データベースからのメッセージを適切な形式に変換
-          const formattedMessages: Message[] = data.map((msg: any) => ({
-            id: msg.id,
-            text: msg.text,
-            timestamp: new Date(msg.timestamp),
-            sender: msg.sender as 'user' | 'echo' // データベースからsender情報を使用
-          }))
-          setMessages(formattedMessages)
+          const conversations = await response.json()
+          if (conversations.length > 0) {
+            // 最新の会話を選択
+            const latestConversation = conversations[0]
+            await loadConversation(latestConversation.id)
+          }
         }
       } catch (error) {
-        console.error('Failed to load message history:', error)
+        console.error('Failed to load initial conversation:', error)
       }
     }
 
-    loadMessages()
+    loadInitialConversation()
   }, [])
+
+  /**
+   * 指定された会話のメッセージを読み込む
+   */
+  const loadConversation = async (conversationId: number) => {
+    try {
+      const response = await fetch(`/api/conversations/${conversationId}/messages`)
+      if (response.ok) {
+        const data = await response.json()
+        // データベースからのメッセージを適切な形式に変換
+        const formattedMessages: Message[] = data.map((msg: any) => ({
+          id: msg.id,
+          text: msg.text,
+          timestamp: new Date(msg.timestamp),
+          sender: msg.sender as 'user' | 'echo'
+        }))
+        setMessages(formattedMessages)
+        setCurrentConversationId(conversationId)
+      }
+    } catch (error) {
+      console.error('Failed to load conversation:', error)
+    }
+  }
+
+  /**
+   * 新しい会話を開始する
+   */
+  const startNewConversation = () => {
+    setMessages([])
+    setCurrentConversationId(null)
+  }
 
   /**
    * メッセージ送信時の処理
@@ -62,7 +93,10 @@ function Chat() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: messageText })
+        body: JSON.stringify({ 
+          message: messageText,
+          conversationId: currentConversationId 
+        })
       })
 
       if (response.ok) {
@@ -76,6 +110,12 @@ function Chat() {
         
         // エコーメッセージを追加
         setMessages(prev => [...prev, echoMessage])
+
+        // 新しい会話が作成された場合、会話IDを更新し、履歴リストを更新
+        if (data.conversationId && !currentConversationId) {
+          setCurrentConversationId(data.conversationId)
+          setRefreshConversations(prev => prev + 1) // トリガーを変更して履歴リストを更新
+        }
       } else {
         console.error('Echo API error:', response.status)
       }
@@ -84,42 +124,21 @@ function Chat() {
     }
   }
 
-  /**
-   * 会話履歴削除時の処理
-   * データベースから全ての会話履歴を削除し、表示をクリアする
-   */
-  const handleClearMessages = async () => {
-    try {
-      const response = await fetch('/api/messages', {
-        method: 'DELETE'
-      })
-
-      if (response.ok) {
-        // 成功時はメッセージリストをクリア
-        setMessages([])
-      } else {
-        console.error('Clear messages API error:', response.status)
-      }
-    } catch (error) {
-      console.error('Failed to clear messages:', error)
-    }
-  }
-
   return (
-    <div className="chat-container">
-      <div className="chat-header">
-        <h1 className="chat-title">チャット</h1>
-        <button 
-          className="clear-button" 
-          onClick={handleClearMessages}
-          title="新規会話を開始"
-        >
-          <span className="material-icons">add</span>
-          新規
-        </button>
+    <div className="app-container">
+      <ConversationList
+        onConversationSelect={loadConversation}
+        selectedConversationId={currentConversationId}
+        onNewConversation={startNewConversation}
+        refreshTrigger={refreshConversations}
+      />
+      <div className="chat-container">
+        <div className="chat-header">
+          <h1 className="chat-title">チャット</h1>
+        </div>
+        <ChatDisplay messages={messages} />
+        <ChatInput onSubmit={handleMessageSubmit} />
       </div>
-      <ChatDisplay messages={messages} />
-      <ChatInput onSubmit={handleMessageSubmit} />
     </div>
   )
 }
