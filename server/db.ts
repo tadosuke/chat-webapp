@@ -1,6 +1,7 @@
 import sqlite3 from "sqlite3";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
+import { mkdirSync } from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -13,6 +14,15 @@ export class Database {
 
   constructor(dbPath?: string) {
     const defaultPath = join(__dirname, "../data/conversation.db");
+    
+    // データディレクトリが存在しない場合は作成
+    const dataDir = dirname(dbPath || defaultPath);
+    try {
+      mkdirSync(dataDir, { recursive: true });
+    } catch (error) {
+      // ディレクトリが既に存在する場合のエラーは無視
+    }
+    
     this.db = new sqlite3.Database(dbPath || defaultPath);
   }
 
