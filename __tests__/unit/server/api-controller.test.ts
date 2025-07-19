@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { Request, Response } from 'express'
-import { handleEcho, getMessages } from '../../../server/api-controller.js'
+import { handleEcho, getMessages, clearMessages } from '../../../server/api-controller.js'
 
 // greeting モジュールをモック
 vi.mock('../../../server/greeting.js', () => ({
@@ -10,10 +10,12 @@ vi.mock('../../../server/greeting.js', () => ({
 // db モジュールをモック
 const mockSaveMessage = vi.fn()
 const mockGetMessages = vi.fn()
+const mockClearMessages = vi.fn()
 vi.mock('../../../server/db.js', () => ({
   getDatabase: () => ({
     saveMessage: mockSaveMessage,
-    getMessages: mockGetMessages
+    getMessages: mockGetMessages,
+    clearMessages: mockClearMessages
   })
 }))
 
@@ -175,6 +177,41 @@ describe('api-controller', () => {
       mockGetMessages.mockRejectedValue(new Error('DB Error'))
 
       await getMessages(req, res)
+
+      expect(status).toHaveBeenCalledWith(500)
+      expect(json).toHaveBeenCalledWith({ error: 'Database error' })
+    })
+  })
+
+  describe('clearMessages', () => {
+    const createMockRequest = (): Request => ({} as Request)
+
+    const createMockResponse = (): { res: Response; json: any; status: any } => {
+      const json = vi.fn()
+      const status = vi.fn(() => ({ json }))
+      const res = { json, status } as unknown as Response
+      return { res, json, status }
+    }
+
+    it('正常にメッセージを削除し、成功レスポンスを返す', async () => {
+      const req = createMockRequest()
+      const { res, json } = createMockResponse()
+
+      mockClearMessages.mockResolvedValue(undefined)
+
+      await clearMessages(req, res)
+
+      expect(mockClearMessages).toHaveBeenCalledTimes(1)
+      expect(json).toHaveBeenCalledWith({ success: true })
+    })
+
+    it('データベースエラー時に500エラーを返す', async () => {
+      const req = createMockRequest()
+      const { res, json, status } = createMockResponse()
+
+      mockClearMessages.mockRejectedValue(new Error('DB Error'))
+
+      await clearMessages(req, res)
 
       expect(status).toHaveBeenCalledWith(500)
       expect(json).toHaveBeenCalledWith({ error: 'Database error' })

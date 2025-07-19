@@ -53,3 +53,19 @@ export async function getMessages(_req: Request, res: Response): Promise<void> {
     res.status(500).json({ error: "Database error" });
   }
 }
+
+/**
+ * メッセージ削除 API のコントローラー
+ * データベースから全てのメッセージを削除する
+ */
+export async function clearMessages(_req: Request, res: Response): Promise<void> {
+  try {
+    const db = getDatabase();
+    await db.clearMessages();
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Clear messages error:", error);
+    res.status(500).json({ error: "Database error" });
+  }
+}

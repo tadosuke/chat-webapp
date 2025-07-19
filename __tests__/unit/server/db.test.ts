@@ -141,4 +141,32 @@ describe('Database', () => {
       expect(messages[2].id).toBe(result3.id)
     })
   })
+
+  describe('clearMessages', () => {
+    it('すべてのメッセージを削除する', async () => {
+      // 最初にメッセージを保存
+      await db.saveMessage('Test message 1', 'user')
+      await db.saveMessage('Test message 2', 'echo')
+
+      // メッセージが存在することを確認
+      const messagesBefore = await db.getMessages()
+      expect(messagesBefore).toHaveLength(2)
+
+      // メッセージをクリア
+      await db.clearMessages()
+
+      // メッセージが削除されたことを確認
+      const messagesAfter = await db.getMessages()
+      expect(messagesAfter).toHaveLength(0)
+    })
+
+    it('空のテーブルでも正常に動作する', async () => {
+      // 最初から空の状態でクリアを実行
+      await expect(db.clearMessages()).resolves.toBeUndefined()
+
+      // メッセージが存在しないことを確認
+      const messages = await db.getMessages()
+      expect(messages).toHaveLength(0)
+    })
+  })
 })

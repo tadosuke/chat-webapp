@@ -84,8 +84,40 @@ function Chat() {
     }
   }
 
+  /**
+   * 会話履歴削除時の処理
+   * データベースから全ての会話履歴を削除し、表示をクリアする
+   */
+  const handleClearMessages = async () => {
+    try {
+      const response = await fetch('/api/messages', {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        // 成功時はメッセージリストをクリア
+        setMessages([])
+      } else {
+        console.error('Clear messages API error:', response.status)
+      }
+    } catch (error) {
+      console.error('Failed to clear messages:', error)
+    }
+  }
+
   return (
     <div className="chat-container">
+      <div className="chat-header">
+        <h1 className="chat-title">チャット</h1>
+        <button 
+          className="clear-button" 
+          onClick={handleClearMessages}
+          title="新規会話を開始"
+        >
+          <span className="material-icons">add</span>
+          新規
+        </button>
+      </div>
       <ChatDisplay messages={messages} />
       <ChatInput onSubmit={handleMessageSubmit} />
     </div>
