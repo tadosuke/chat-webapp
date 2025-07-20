@@ -8,6 +8,10 @@
   background-color: #242424;
 }
 
+.app-container.resizing {
+  user-select: none;
+}
+
 .chat-container {
   flex: 1;
   display: flex;

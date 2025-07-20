@@ -13,6 +13,7 @@ interface ConversationListProps {
   onNewConversation: () => void
   onConversationDelete: (conversationId: number) => void
   refreshTrigger?: number // 履歴リストを再読み込みするためのトリガー
+  width?: number // サイドバーの幅
 }
 
 /**
@@ -24,7 +25,7 @@ interface ConversationListProps {
  * @param onConversationDelete - 会話削除時のコールバック関数
  * @returns 会話履歴リストのJSX要素
  */
-function ConversationList({ onConversationSelect, selectedConversationId, onNewConversation, onConversationDelete, refreshTrigger }: ConversationListProps) {
+function ConversationList({ onConversationSelect, selectedConversationId, onNewConversation, onConversationDelete, refreshTrigger, width = 280 }: ConversationListProps) {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -102,7 +103,7 @@ function ConversationList({ onConversationSelect, selectedConversationId, onNewC
   }
 
   return (
-    <div className="conversation-list">
+    <div className="conversation-list" style={{ width: `${width}px` }}>
       <div className="conversation-list-header">
         <h2 className="conversation-list-title">会話履歴</h2>
         <button 
