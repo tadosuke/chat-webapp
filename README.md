@@ -1,5 +1,7 @@
 # Chat WebApp
 
+![alt text](image.png)
+
 GitHub Copilot Coding Agent の機能検証に作られた、チャット風アプリケーションです。
 実際にチャットをするのではなく、送信したメッセージをそのまま返します。
 おまけ程度に `/cat`, `/time` コマンドを実装しています。
