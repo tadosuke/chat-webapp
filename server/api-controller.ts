@@ -48,38 +48,6 @@ export async function handleEcho(req: Request, res: Response): Promise<void> {
 }
 
 /**
- * メッセージ取得 API のコントローラー
- * データベースから全てのメッセージを取得して返す
- */
-export async function getMessages(_req: Request, res: Response): Promise<void> {
-  try {
-    const db = getDatabase();
-    const messages = await db.getMessages();
-
-    res.json(messages);
-  } catch (error) {
-    console.error("Get messages error:", error);
-    res.status(500).json({ error: "Database error" });
-  }
-}
-
-/**
- * メッセージ削除 API のコントローラー
- * データベースから全てのメッセージを削除する
- */
-export async function clearMessages(_req: Request, res: Response): Promise<void> {
-  try {
-    const db = getDatabase();
-    await db.clearMessages();
-
-    res.json({ success: true });
-  } catch (error) {
-    console.error("Clear messages error:", error);
-    res.status(500).json({ error: "Database error" });
-  }
-}
-
-/**
  * 会話一覧取得 API のコントローラー
  * データベースから全ての会話を取得して返す
  */

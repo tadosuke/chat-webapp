@@ -8,12 +8,6 @@ vi.mock('../../../server/api-controller.js', () => ({
   handleEcho: vi.fn((req, res) => {
     res.json({ message: 'mocked response' })
   }),
-  getMessages: vi.fn((req, res) => {
-    res.json([{ id: 1, text: 'mocked message', timestamp: '2023-01-01 00:00:00' }])
-  }),
-  clearMessages: vi.fn((req, res) => {
-    res.json({ success: true })
-  }),
   getConversations: vi.fn((req, res) => {
     res.json([{ id: 1, title: 'mocked conversation', created_at: '2023-01-01 00:00:00' }])
   }),
@@ -100,18 +94,6 @@ describe('routes', () => {
         .send({ message: 'test', sender: 'user' })
 
       expect(response.status).toBe(404)
-    })
-
-    it('DELETE /messages エンドポイントが設定されている', async () => {
-      const app = express()
-      app.use(express.json())
-      app.use('/api', createRouter())
-
-      const response = await request(app)
-        .delete('/api/messages')
-
-      expect(response.status).toBe(200)
-      expect(response.body).toEqual({ success: true })
     })
 
     it('DELETE /conversations/:conversationId エンドポイントが設定されている', async () => {
