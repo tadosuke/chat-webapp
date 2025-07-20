@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 
 // routes モジュールをモックして循環依存を回避
-vi.mock('../../../server/routes.js', () => ({
+vi.mock('../../../server/routes/api-routes.js', () => ({
   createRouter: vi.fn(() => {
     const router = express.Router()
     router.post('/echo', (req, res) => {
@@ -41,7 +41,7 @@ describe('Express App Integration', () => {
     vi.resetModules()
     
     // モック設定後に依存関係をインポート
-    const { createRouter } = await import('../../../server/routes.js')
+    const { createRouter } = await import('../../../server/routes/api-routes.js')
     
     // index.ts と同様にアプリを作成するが、サーバー起動は行わない
     app = express()

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { Request, Response } from 'express'
 
 // echo モジュールをモック
-vi.mock('../../../server/echo.js', () => ({
+vi.mock('../../../server/services/echo.js', () => ({
   echo: vi.fn((message: string) => message)
 }))
 
@@ -27,7 +27,7 @@ vi.mock('../../../server/db.js', () => ({
 }))
 
 // テスト対象をインポート
-const { handleEcho, deleteConversation } = await import('../../../server/api-controller.js')
+const { handleEcho, deleteConversation } = await import('../../../server/controllers/api-controller.js')
 
 describe('api-controller', () => {
   const createMockRequest = (body: any = {}, params: any = {}): Request => ({
