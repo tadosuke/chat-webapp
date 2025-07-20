@@ -12,16 +12,16 @@ const React = {
 vi.mock('react', () => React)
 
 // Mock the CSS import
-vi.mock('../../../src/components/ConversationList/ConversationList.css', () => ({}))
+vi.mock('../../../../src/components/ConversationList/ConversationList.css', () => ({}))
 
 // Mock the new sub-components  
-vi.mock('../../../src/components/ConversationList/ConversationItems', () => ({
+vi.mock('../../../../src/components/ConversationList/ConversationItems', () => ({
   default: vi.fn(() => null)
 }))
-vi.mock('../../../src/components/ConversationList/ConversationItem', () => ({
+vi.mock('../../../../src/components/ConversationList/ConversationItem', () => ({
   default: vi.fn(() => null)
 }))
-vi.mock('../../../src/components/ConversationList/ConversationDeleteButton', () => ({
+vi.mock('../../../../src/components/ConversationList/ConversationDeleteButton', () => ({
   default: vi.fn(() => null)
 }))
 
@@ -83,7 +83,7 @@ describe('ConversationList', () => {
   })
 
   it('コンポーネントが初期化時に会話一覧を読み込む', async () => {
-    const ConversationList = (await import('../../../src/components/ConversationList')).default
+    const ConversationList = (await import('../../../../src/components/ConversationList')).default
     
     ConversationList({
       onConversationSelect: mockOnConversationSelect,
@@ -114,7 +114,7 @@ describe('ConversationList', () => {
       })
     })
 
-    const ConversationList = (await import('../../../src/components/ConversationList')).default
+    const ConversationList = (await import('../../../../src/components/ConversationList')).default
     
     const component = ConversationList({
       onConversationSelect: mockOnConversationSelect,
