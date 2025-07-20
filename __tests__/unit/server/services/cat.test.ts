@@ -13,12 +13,8 @@ describe('cat service', () => {
   describe('getCatFact', () => {
     it('API から猫の雑学を正常に取得する', async () => {
       const mockCatFact = {
-        _id: '58e008800aac31001185ed05',
-        text: '猫は一日の70%を寝て過ごします。',
-        type: 'cat',
-        user: '58e007480aac31001185ecef',
-        upvotes: 5,
-        userUpvoted: null
+        fact: '猫は一日の70%を寝て過ごします。',
+        length: 21
       }
 
       mockFetch.mockResolvedValue({
@@ -28,7 +24,7 @@ describe('cat service', () => {
 
       const result = await getCatFact()
 
-      expect(mockFetch).toHaveBeenCalledWith('https://cat-fact.herokuapp.com/facts/random')
+      expect(mockFetch).toHaveBeenCalledWith('https://catfact.ninja/fact')
       expect(result).toBe('猫は一日の70%を寝て過ごします。')
     })
 
