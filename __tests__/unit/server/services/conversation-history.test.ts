@@ -1,26 +1,29 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-// db モジュール全体をモック
+// conversation-history モジュール全体をモック
 const mockCreateConversation = vi.fn()
 const mockSaveMessage = vi.fn()
 
-vi.mock('../../../../server/services/db.js', () => ({
+vi.mock('../../../../server/services/database.js', () => ({
   getDatabase: vi.fn(() => ({
     createConversation: mockCreateConversation,
     saveMessage: mockSaveMessage
-  })),
+  }))
+}))
+
+vi.mock('../../../../server/services/conversation-history.js', () => ({
   ensureConversation: vi.fn(),
   saveEchoMessages: vi.fn(),
 }))
 
-describe('services/db', () => {
+describe('services/conversation-history', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   describe('ensureConversation', () => {
     it('会話IDが指定されている場合はそのまま返す', async () => {
-      const { ensureConversation } = await import('../../../../server/services/db.js')
+      const { ensureConversation } = await import('../../../../server/services/conversation-history.js')
       const message = 'Test message'
       const existingConversationId = 123
 
@@ -41,7 +44,7 @@ describe('services/db', () => {
     })
 
     it('会話IDが指定されていない場合は新しい会話を作成する', async () => {
-      const { ensureConversation } = await import('../../../../server/services/db.js')
+      const { ensureConversation } = await import('../../../../server/services/conversation-history.js')
       const message = 'Test message'
       const newConversationId = 456
 
@@ -63,7 +66,7 @@ describe('services/db', () => {
     })
 
     it('長いメッセージの場合はタイトルを15文字で切り詰める', async () => {
-      const { ensureConversation } = await import('../../../../server/services/db.js')
+      const { ensureConversation } = await import('../../../../server/services/conversation-history.js')
       const longMessage = 'This is a very long message that should be truncated'
       const expectedTitle = 'This is a very ...'
       const newConversationId = 789
@@ -86,7 +89,7 @@ describe('services/db', () => {
     })
 
     it('15文字以下のメッセージの場合はそのままタイトルにする', async () => {
-      const { ensureConversation } = await import('../../../../server/services/db.js')
+      const { ensureConversation } = await import('../../../../server/services/conversation-history.js')
       const shortMessage = 'Short'
       const newConversationId = 101
 
@@ -108,7 +111,7 @@ describe('services/db', () => {
     })
 
     it('空文字列のメッセージでも正常に処理される', async () => {
-      const { ensureConversation } = await import('../../../../server/services/db.js')
+      const { ensureConversation } = await import('../../../../server/services/conversation-history.js')
       const emptyMessage = ''
       const newConversationId = 202
 
@@ -132,7 +135,7 @@ describe('services/db', () => {
 
   describe('saveEchoMessages', () => {
     it('ユーザーメッセージとエコーメッセージの両方を正しい順序で保存する', async () => {
-      const { saveEchoMessages } = await import('../../../../server/services/db.js')
+      const { saveEchoMessages } = await import('../../../../server/services/conversation-history.js')
       const userMessage = 'Hello'
       const echoMessage = 'Hello'
       const conversationId = 123
@@ -152,7 +155,7 @@ describe('services/db', () => {
     })
 
     it('異なるメッセージ内容でも正常に保存される', async () => {
-      const { saveEchoMessages } = await import('../../../../server/services/db.js')
+      const { saveEchoMessages } = await import('../../../../server/services/conversation-history.js')
       const userMessage = 'User message'
       const echoMessage = 'Different echo message'
       const conversationId = 456
@@ -172,7 +175,7 @@ describe('services/db', () => {
     })
 
     it('空文字列のメッセージでも正常に保存される', async () => {
-      const { saveEchoMessages } = await import('../../../../server/services/db.js')
+      const { saveEchoMessages } = await import('../../../../server/services/conversation-history.js')
       const userMessage = ''
       const echoMessage = ''
       const conversationId = 789
@@ -192,7 +195,7 @@ describe('services/db', () => {
     })
 
     it('データベースエラー時に例外をスローする', async () => {
-      const { saveEchoMessages } = await import('../../../../server/services/db.js')
+      const { saveEchoMessages } = await import('../../../../server/services/conversation-history.js')
       const userMessage = 'Test message'
       const echoMessage = 'Echo message'
       const conversationId = 123
