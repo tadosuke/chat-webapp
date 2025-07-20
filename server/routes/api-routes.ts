@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { handleEcho, getConversations, getConversationMessages, deleteConversation } from "../controllers/api-controller.js";
+import { handleTime } from "../controllers/time-controller.js";
 
 /**
  * API ルーティングの設定
@@ -10,6 +11,9 @@ export function createRouter(): Router {
 
   // POST /echo エンドポイント
   router.post("/echo", handleEcho);
+
+  // POST /time エンドポイント
+  router.post("/time", handleTime);
 
   // GET /conversations エンドポイント（会話一覧取得）
   router.get("/conversations", getConversations);
