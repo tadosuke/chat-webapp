@@ -6,20 +6,24 @@ vi.mock('../../../../server/services/echo.js', () => ({
   echo: vi.fn((message: string) => message)
 }))
 
-// services/db モジュールをモック
-const mockEnsureConversation = vi.fn()
-const mockSaveEchoMessages = vi.fn()
+// services/database モジュールをモック
 const mockGetConversations = vi.fn()
 const mockGetMessagesByConversationId = vi.fn()
 const mockDeleteConversation = vi.fn()
-vi.mock('../../../../server/services/db.js', () => ({
-  ensureConversation: mockEnsureConversation,
-  saveEchoMessages: mockSaveEchoMessages,
+vi.mock('../../../../server/services/database.js', () => ({
   getDatabase: vi.fn(() => ({
     getConversations: mockGetConversations,
     getMessagesByConversationId: mockGetMessagesByConversationId,
     deleteConversation: mockDeleteConversation
   }))
+}))
+
+// services/conversation-history モジュールをモック
+const mockEnsureConversation = vi.fn()
+const mockSaveEchoMessages = vi.fn()
+vi.mock('../../../../server/services/conversation-history.js', () => ({
+  ensureConversation: mockEnsureConversation,
+  saveEchoMessages: mockSaveEchoMessages
 }))
 
 // テスト対象をインポート
