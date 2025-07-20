@@ -1,10 +1,10 @@
 import { describe, it, expect, vi } from 'vitest'
 import request from 'supertest'
 import express from 'express'
-import { createRouter } from '../../../server/routes.js'
+import { createRouter } from '../../../../server/routes/api-routes.js'
 
 // api-controller モジュールをモック
-vi.mock('../../../server/api-controller.js', () => ({
+vi.mock('../../../../server/controllers/api-controller.js', () => ({
   handleEcho: vi.fn((req, res) => {
     res.json({ message: 'mocked response' })
   }),

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { echo } from "./echo.js";
-import { getDatabase } from "./db.js";
-import { ensureConversation, saveEchoMessages } from "./services/db.js";
+import { echo } from "../services/echo.js";
+import { getDatabase } from "../db.js";
+import { ensureConversation, saveEchoMessages } from "../services/db.js";
 
 /**
  * エコー API のコントローラー

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { handleEcho, getConversations, getConversationMessages, deleteConversation } from "./api-controller.js";
+import { handleEcho, getConversations, getConversationMessages, deleteConversation } from "../controllers/api-controller.js";
 
 /**
  * API ルーティングの設定

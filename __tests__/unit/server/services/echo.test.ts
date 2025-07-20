@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { echo } from '../../../server/echo.js'
+import { echo } from '../../../../server/services/echo.js'
 
 describe('echo', () => {
   describe('echo', () => {

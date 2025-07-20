@@ -1,7 +1,7 @@
 import express from "express";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
-import { createRouter } from "./routes.js";
+import { createRouter } from "./routes/api-routes.js";
 import { getDatabase } from "./db.js";
 
 const __filename = fileURLToPath(import.meta.url);

@@ -2,14 +2,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { Request, Response } from 'express'
 
 // echo モジュールをモック
-vi.mock('../../../server/echo.js', () => ({
+vi.mock('../../../../server/services/echo.js', () => ({
   echo: vi.fn((message: string) => message)
 }))
 
 // services/db モジュールをモック
 const mockEnsureConversation = vi.fn()
 const mockSaveEchoMessages = vi.fn()
-vi.mock('../../../server/services/db.js', () => ({
+vi.mock('../../../../server/services/db.js', () => ({
   ensureConversation: mockEnsureConversation,
   saveEchoMessages: mockSaveEchoMessages
 }))
@@ -18,7 +18,7 @@ vi.mock('../../../server/services/db.js', () => ({
 const mockGetConversations = vi.fn()
 const mockGetMessagesByConversationId = vi.fn()
 const mockDeleteConversation = vi.fn()
-vi.mock('../../../server/db.js', () => ({
+vi.mock('../../../../server/db.js', () => ({
   getDatabase: vi.fn(() => ({
     getConversations: mockGetConversations,
     getMessagesByConversationId: mockGetMessagesByConversationId,
@@ -27,7 +27,7 @@ vi.mock('../../../server/db.js', () => ({
 }))
 
 // テスト対象をインポート
-const { handleEcho, deleteConversation } = await import('../../../server/api-controller.js')
+const { handleEcho, deleteConversation } = await import('../../../../server/controllers/api-controller.js')
 
 describe('api-controller', () => {
   const createMockRequest = (body: any = {}, params: any = {}): Request => ({
