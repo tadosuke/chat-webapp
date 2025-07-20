@@ -19,6 +19,13 @@ vi.mock('../../../../server/controllers/api-controller.js', () => ({
   })
 }))
 
+// time-controller モジュールをモック
+vi.mock('../../../../server/controllers/time-controller.js', () => ({
+  handleTime: vi.fn((req, res) => {
+    res.json({ message: '15:48' })
+  })
+}))
+
 describe('routes', () => {
   describe('createRouter', () => {
     it('ルーターインスタンスを作成する', () => {
@@ -37,6 +44,19 @@ describe('routes', () => {
 
       expect(response.status).toBe(200)
       expect(response.body).toEqual({ message: 'mocked response' })
+    })
+
+    it('POST /time エンドポイントが設定されている', async () => {
+      const app = express()
+      app.use(express.json())
+      app.use('/api', createRouter())
+
+      const response = await request(app)
+        .post('/api/time')
+        .send({})
+
+      expect(response.status).toBe(200)
+      expect(response.body).toEqual({ message: '15:48' })
     })
 
     it('未定義のルートに対して404を返す', async () => {
