@@ -6,6 +6,12 @@ vi.mock('../../../../server/services/echo.js', () => ({
   echo: vi.fn((message: string) => message)
 }))
 
+// cat モジュールをモック
+const mockGetCatFact = vi.fn()
+vi.mock('../../../../server/services/cat.js', () => ({
+  getCatFact: mockGetCatFact
+}))
+
 // services/database モジュールをモック
 const mockGetConversations = vi.fn()
 const mockGetMessagesByConversationId = vi.fn()
@@ -27,7 +33,7 @@ vi.mock('../../../../server/services/conversation-history.js', () => ({
 }))
 
 // テスト対象をインポート
-const { handleEcho, deleteConversation } = await import('../../../../server/controllers/api-controller.js')
+const { handleEcho, deleteConversation, handleCat } = await import('../../../../server/controllers/api-controller.js')
 
 describe('api-controller', () => {
   const createMockRequest = (body: any = {}, params: any = {}): Request => ({
@@ -226,6 +232,72 @@ describe('api-controller', () => {
 
       expect(status).toHaveBeenCalledWith(500)
       expect(json).toHaveBeenCalledWith({ error: 'Database error' })
+    })
+  })
+
+  describe('handleCat', () => {
+    it('有効な文字列が提供された場合、猫の雑学を返し、ユーザーと猫の雑学メッセージを保存する', async () => {
+      const req = createMockRequest({ message: '/cat' })
+      const { res, json } = createMockResponse()
+
+      mockEnsureConversation.mockResolvedValue(1)
+      mockSaveEchoMessages.mockResolvedValue(undefined)
+      mockGetCatFact.mockResolvedValue('猫は一日の70%を寝て過ごします。')
+
+      await handleCat(req, res)
+
+      // 会話IDが確保されることを確認
+      expect(mockEnsureConversation).toHaveBeenCalledTimes(1)
+      expect(mockEnsureConversation).toHaveBeenCalledWith('/cat', undefined)
+      
+      // 猫の雑学が取得されることを確認
+      expect(mockGetCatFact).toHaveBeenCalledTimes(1)
+      
+      // ユーザーメッセージと猫の雑学メッセージの両方が保存されることを確認
+      expect(mockSaveEchoMessages).toHaveBeenCalledTimes(1)
+      expect(mockSaveEchoMessages).toHaveBeenCalledWith('/cat', '猫は一日の70%を寝て過ごします。', 1)
+      expect(json).toHaveBeenCalledWith({ message: '猫は一日の70%を寝て過ごします。', conversationId: 1 })
+    })
+
+    it('メッセージが文字列でない場合、400エラーを返し、データベースに保存しない', async () => {
+      const req = createMockRequest({ message: 123 })
+      const { res, json, status } = createMockResponse()
+
+      await handleCat(req, res)
+
+      expect(status).toHaveBeenCalledWith(400)
+      expect(json).toHaveBeenCalledWith({ error: 'Message must be a string' })
+      expect(mockEnsureConversation).not.toHaveBeenCalled()
+      expect(mockGetCatFact).not.toHaveBeenCalled()
+      expect(mockSaveEchoMessages).not.toHaveBeenCalled()
+    })
+
+    it('猫の雑学取得でエラーが発生した場合、500エラーを返す', async () => {
+      const req = createMockRequest({ message: '/cat' })
+      const { res, json, status } = createMockResponse()
+
+      mockEnsureConversation.mockResolvedValue(1)
+      mockGetCatFact.mockRejectedValue(new Error('Cat API Error'))
+
+      await handleCat(req, res)
+
+      expect(status).toHaveBeenCalledWith(500)
+      expect(json).toHaveBeenCalledWith({ error: 'Internal server error' })
+    })
+
+    it('会話IDが指定されている場合はそれを使用する', async () => {
+      const req = createMockRequest({ message: '/cat', conversationId: 123 })
+      const { res, json } = createMockResponse()
+
+      mockEnsureConversation.mockResolvedValue(123)
+      mockSaveEchoMessages.mockResolvedValue(undefined)
+      mockGetCatFact.mockResolvedValue('猫は夜行性の動物です。')
+
+      await handleCat(req, res)
+
+      expect(mockEnsureConversation).toHaveBeenCalledWith('/cat', 123)
+      expect(mockSaveEchoMessages).toHaveBeenCalledWith('/cat', '猫は夜行性の動物です。', 123)
+      expect(json).toHaveBeenCalledWith({ message: '猫は夜行性の動物です。', conversationId: 123 })
     })
   })
 })

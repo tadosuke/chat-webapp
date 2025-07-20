@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { echo } from "../services/echo.js";
+import { getCatFact } from "../services/cat.js";
 import { getDatabase } from "../services/database.js";
 import { ensureConversation, saveEchoMessages } from "../services/conversation-history.js";
 
@@ -96,5 +97,39 @@ export async function deleteConversation(req: Request, res: Response): Promise<v
   } catch (error) {
     console.error("Delete conversation error:", error);
     res.status(500).json({ error: "Database error" });
+  }
+}
+
+/**
+ * 猫の雑学 API のコントローラー
+ * 外部APIから猫の雑学を取得して返す
+ * 同時にユーザーメッセージと猫の雑学メッセージをデータベースに保存する
+ */
+export async function handleCat(req: Request, res: Response): Promise<void> {
+  try {
+    // リクエストボディからメッセージと会話IDを取得
+    const { message, conversationId } = req.body;
+
+    // メッセージが文字列でない場合はエラーを返す
+    if (typeof message !== "string") {
+      res.status(400).json({ error: "Message must be a string" });
+      return;
+    }
+
+    // 会話IDを確保（新規作成または既存使用）
+    const currentConversationId = await ensureConversation(message, conversationId);
+
+    // 外部APIから猫の雑学を取得
+    const catFact = await getCatFact();
+
+    // ユーザーメッセージと猫の雑学メッセージを保存
+    await saveEchoMessages(message, catFact, currentConversationId);
+
+    // レスポンスとして結果と会話IDを返す
+    res.json({ message: catFact, conversationId: currentConversationId });
+  } catch (error) {
+    console.error("Cat API error:", error);
+    // エラーハンドリング
+    res.status(500).json({ error: "Internal server error" });
   }
 }
