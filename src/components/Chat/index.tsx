@@ -123,9 +123,8 @@ function Chat() {
 
   /**
    * メッセージ送信時の処理
-   * 新しいメッセージを作成してメッセージリストに追加し、
-   * API/echoエンドポイントに送信してレスポンスを取得する
-   * エコーAPIが自動的にユーザーメッセージとエコーメッセージの両方をデータベースに保存する
+   * "time"の場合は時刻APIを呼び出し、それ以外はエコーAPIを呼び出す
+   * エコーAPIは自動的にユーザーメッセージとエコーメッセージの両方をデータベースに保存する
    * @param messageText - 送信するメッセージのテキスト
    */
   const handleMessageSubmit = async (messageText: string) => {
@@ -140,40 +139,66 @@ function Chat() {
     setMessages(prev => [...prev, userMessage])
 
     try {
-      // API/echoエンドポイントに送信（バックエンドで自動的にメッセージが保存される）
-      const response = await fetch('/api/echo', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          message: messageText,
-          conversationId: currentConversationId 
+      if (messageText.toLowerCase() === 'time') {
+        // 時刻APIを呼び出し
+        const response = await fetch('/api/time', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({})
         })
-      })
 
-      if (response.ok) {
-        const data = await response.json()
-        const echoMessage: Message = {
-          id: Date.now() + 1,
-          text: data.message,
-          timestamp: new Date(),
-          sender: 'echo'
-        }
-        
-        // エコーメッセージを追加
-        setMessages(prev => [...prev, echoMessage])
-
-        // 新しい会話が作成された場合、会話IDを更新し、履歴リストを更新
-        if (data.conversationId && !currentConversationId) {
-          setCurrentConversationId(data.conversationId)
-          setRefreshConversations(prev => prev + 1) // トリガーを変更して履歴リストを更新
+        if (response.ok) {
+          const data = await response.json()
+          const timeMessage: Message = {
+            id: Date.now() + 1,
+            text: data.message,
+            timestamp: new Date(),
+            sender: 'echo'
+          }
+          
+          // 時刻メッセージを追加
+          setMessages(prev => [...prev, timeMessage])
+        } else {
+          console.error('Time API error:', response.status)
         }
       } else {
-        console.error('Echo API error:', response.status)
+        // API/echoエンドポイントに送信（バックエンドで自動的にメッセージが保存される）
+        const response = await fetch('/api/echo', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            message: messageText,
+            conversationId: currentConversationId 
+          })
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          const echoMessage: Message = {
+            id: Date.now() + 1,
+            text: data.message,
+            timestamp: new Date(),
+            sender: 'echo'
+          }
+          
+          // エコーメッセージを追加
+          setMessages(prev => [...prev, echoMessage])
+
+          // 新しい会話が作成された場合、会話IDを更新し、履歴リストを更新
+          if (data.conversationId && !currentConversationId) {
+            setCurrentConversationId(data.conversationId)
+            setRefreshConversations(prev => prev + 1) // トリガーを変更して履歴リストを更新
+          }
+        } else {
+          console.error('Echo API error:', response.status)
+        }
       }
     } catch (error) {
-      console.error('Failed to call Echo API:', error)
+      console.error('Failed to call API:', error)
     }
   }
 
