@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { echo } from "./echo.js";
 import { getDatabase } from "./db.js";
+import { ensureConversation, saveEchoMessages } from "./services/db.js";
 
 /**
  * エコー API のコントローラー
@@ -18,25 +19,14 @@ export async function handleEcho(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const db = getDatabase();
-    let currentConversationId = conversationId;
-
-    // 会話IDが指定されていない場合は新しい会話を作成
-    if (!currentConversationId) {
-      // メッセージから会話のタイトルを生成（最初の15文字）
-      const title = message.length > 15 ? message.substring(0, 15) + "..." : message;
-      const conversation = await db.createConversation(title);
-      currentConversationId = conversation.id;
-    }
-
-    // ユーザーメッセージをデータベースに保存
-    await db.saveMessage(message, 'user', currentConversationId);
+    // 会話IDを確保（新規作成または既存使用）
+    const currentConversationId = await ensureConversation(message, conversationId);
 
     // echo.ts の echo 関数を呼び出し
     const result = echo(message);
 
-    // エコーメッセージをデータベースに保存
-    await db.saveMessage(result, 'echo', currentConversationId);
+    // ユーザーメッセージとエコーメッセージを保存
+    await saveEchoMessages(message, result, currentConversationId);
 
     // レスポンスとして結果と会話IDを返す
     res.json({ message: result, conversationId: currentConversationId });
