@@ -9,16 +9,12 @@ vi.mock('../../../../server/services/echo.js', () => ({
 // services/db モジュールをモック
 const mockEnsureConversation = vi.fn()
 const mockSaveEchoMessages = vi.fn()
-vi.mock('../../../../server/services/db.js', () => ({
-  ensureConversation: mockEnsureConversation,
-  saveEchoMessages: mockSaveEchoMessages
-}))
-
-// db モジュールをモック
 const mockGetConversations = vi.fn()
 const mockGetMessagesByConversationId = vi.fn()
 const mockDeleteConversation = vi.fn()
-vi.mock('../../../../server/db.js', () => ({
+vi.mock('../../../../server/services/db.js', () => ({
+  ensureConversation: mockEnsureConversation,
+  saveEchoMessages: mockSaveEchoMessages,
   getDatabase: vi.fn(() => ({
     getConversations: mockGetConversations,
     getMessagesByConversationId: mockGetMessagesByConversationId,
