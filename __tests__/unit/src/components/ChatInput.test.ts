@@ -14,7 +14,7 @@ const React = {
 vi.mock('react', () => React)
 
 // Mock the CSS import
-vi.mock('../../../src/components/ChatInput/ChatInput.css', () => ({}))
+vi.mock('../../../../src/components/ChatInput/ChatInput.css', () => ({}))
 
 describe('ChatInput', () => {
   beforeEach(() => {
@@ -25,18 +25,18 @@ describe('ChatInput', () => {
   })
 
   it('should export ChatInput component and ChatInputProps interface', async () => {
-    const module = await import('../../../src/components/ChatInput')
+    const module = await import('../../../../src/components/ChatInput')
     expect(module.default).toBeDefined()
     expect(typeof module.default).toBe('function')
   })
 
   it('should be a named function called ChatInput', async () => {
-    const module = await import('../../../src/components/ChatInput')
+    const module = await import('../../../../src/components/ChatInput')
     expect(module.default.name).toBe('ChatInput')
   })
 
   it('should use React hooks', async () => {
-    const module = await import('../../../src/components/ChatInput')
+    const module = await import('../../../../src/components/ChatInput')
     
     // Simulate calling the component
     const mockOnSubmit = vi.fn()
