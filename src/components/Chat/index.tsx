@@ -123,8 +123,8 @@ function Chat() {
 
   /**
    * メッセージ送信時の処理
-   * "time"の場合は時刻APIを呼び出し、それ以外はエコーAPIを呼び出す
-   * エコーAPIは自動的にユーザーメッセージとエコーメッセージの両方をデータベースに保存する
+   * "time"の場合は時刻APIを、"/cat"の場合は猫APIを、それ以外はエコーAPIを呼び出す
+   * エコーAPIと猫APIは自動的にユーザーメッセージとレスポンスメッセージの両方をデータベースに保存する
    * @param messageText - 送信するメッセージのテキスト
    */
   const handleMessageSubmit = async (messageText: string) => {
@@ -162,6 +162,39 @@ function Chat() {
           setMessages(prev => [...prev, timeMessage])
         } else {
           console.error('Time API error:', response.status)
+        }
+      } else if (messageText === '/cat') {
+        // 猫APIを呼び出し（バックエンドで自動的にメッセージが保存される）
+        const response = await fetch('/api/cat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            message: messageText,
+            conversationId: currentConversationId 
+          })
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          const catMessage: Message = {
+            id: Date.now() + 1,
+            text: data.message,
+            timestamp: new Date(),
+            sender: 'echo'
+          }
+          
+          // 猫の雑学メッセージを追加
+          setMessages(prev => [...prev, catMessage])
+
+          // 新しい会話が作成された場合、会話IDを更新し、履歴リストを更新
+          if (data.conversationId && !currentConversationId) {
+            setCurrentConversationId(data.conversationId)
+            setRefreshConversations(prev => prev + 1) // トリガーを変更して履歴リストを更新
+          }
+        } else {
+          console.error('Cat API error:', response.status)
         }
       } else {
         // API/echoエンドポイントに送信（バックエンドで自動的にメッセージが保存される）
