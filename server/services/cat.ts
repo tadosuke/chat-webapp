@@ -6,13 +6,9 @@
 /**
  * 猫の雑学データの型定義
  */
-interface CatFact {
-  _id: string;
-  text: string;
-  type: string;
-  user: string;
-  upvotes: number;
-  userUpvoted: null;
+interface CatFactNinjaResponse {
+  fact: string;
+  length: number;
 }
 
 /**
@@ -21,17 +17,15 @@ interface CatFact {
  */
 export async function getCatFact(): Promise<string> {
   try {
-    const response = await fetch('https://cat-fact.herokuapp.com/facts/random');
-    
+    const response = await fetch("https://catfact.ninja/fact");
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
-    const data: CatFact = await response.json();
-    return data.text;
+    const data: CatFactNinjaResponse = await response.json();
+    return data.fact;
   } catch (error) {
-    console.error('Cat fact API error:', error);
+    console.error("Cat fact API error:", error);
     // APIエラー時のフォールバック
-    return '猫の雑学の取得に失敗しました。しばらく後で再試行してください。';
+    return "猫の雑学の取得に失敗しました。しばらく後で再試行してください。";
   }
 }
