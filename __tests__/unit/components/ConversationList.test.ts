@@ -14,6 +14,17 @@ vi.mock('react', () => React)
 // Mock the CSS import
 vi.mock('../../../src/components/ConversationList/ConversationList.css', () => ({}))
 
+// Mock the new sub-components  
+vi.mock('../../../src/components/ConversationList/ConversationItems', () => ({
+  default: vi.fn(() => null)
+}))
+vi.mock('../../../src/components/ConversationList/ConversationItem', () => ({
+  default: vi.fn(() => null)
+}))
+vi.mock('../../../src/components/ConversationList/ConversationDeleteButton', () => ({
+  default: vi.fn(() => null)
+}))
+
 // Mock fetch
 const mockFetch = vi.fn()
 global.fetch = mockFetch

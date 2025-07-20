@@ -1,11 +1,6 @@
 import { useEffect, useState } from 'react'
 import './ConversationList.css'
-
-interface Conversation {
-  id: number
-  title: string
-  created_at: string
-}
+import ConversationItems, { type Conversation } from './ConversationItems'
 
 interface ConversationListProps {
   onConversationSelect: (conversationId: number) => void
@@ -116,58 +111,16 @@ function ConversationList({ onConversationSelect, selectedConversationId, onNewC
         </button>
       </div>
       
-      <div className="conversation-list-content">
-        {loading && (
-          <div className="conversation-list-loading">
-            読み込み中...
-          </div>
-        )}
-        
-        {error && (
-          <div className="conversation-list-error">
-            {error}
-            <button onClick={loadConversations} className="retry-button">
-              再試行
-            </button>
-          </div>
-        )}
-        
-        {!loading && !error && conversations.length === 0 && (
-          <div className="conversation-list-empty">
-            会話履歴がありません<br />
-            新しい会話を開始してください
-          </div>
-        )}
-        
-        {!loading && !error && conversations.length > 0 && (
-          <div className="conversation-list-items">
-            {conversations.map((conversation) => (
-              <div
-                key={conversation.id}
-                className={`conversation-item ${selectedConversationId === conversation.id ? 'selected' : ''}`}
-                onClick={() => onConversationSelect(conversation.id)}
-                title={conversation.title}
-              >
-                <div className="conversation-item-content">
-                  <div className="conversation-item-title">
-                    {formatTitle(conversation.title)}
-                  </div>
-                  <div className="conversation-item-date">
-                    {new Date(conversation.created_at).toLocaleDateString('ja-JP')}
-                  </div>
-                </div>
-                <button 
-                  className="conversation-item-delete"
-                  onClick={(e) => handleDeleteConversation(conversation.id, e)}
-                  title="会話を削除"
-                >
-                  <span className="material-icons">delete</span>
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      <ConversationItems
+        conversations={conversations}
+        loading={loading}
+        error={error}
+        selectedConversationId={selectedConversationId}
+        onConversationSelect={onConversationSelect}
+        onDeleteConversation={handleDeleteConversation}
+        onRetry={loadConversations}
+        formatTitle={formatTitle}
+      />
     </div>
   )
 }
