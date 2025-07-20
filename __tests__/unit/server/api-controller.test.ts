@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { Request, Response } from 'express'
 import { handleEcho, deleteConversation } from '../../../server/api-controller.js'
 
-// greeting モジュールをモック
-vi.mock('../../../server/greeting.js', () => ({
+// echo モジュールをモック
+vi.mock('../../../server/echo.js', () => ({
   echo: vi.fn((message: string) => message)
 }))
 

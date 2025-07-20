@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import { echo } from "./greeting.js";
+import { echo } from "./echo.js";
 import { getDatabase } from "./db.js";
 
 /**
  * エコー API のコントローラー
- * リクエストからメッセージを取得し、greeting.ts の echo 関数を呼び出して結果を返す
+ * リクエストからメッセージを取得し、echo.ts の echo 関数を呼び出して結果を返す
  * 同時にユーザーメッセージとエコーメッセージの両方をデータベースに保存する
  */
 export async function handleEcho(req: Request, res: Response): Promise<void> {
@@ -32,7 +32,7 @@ export async function handleEcho(req: Request, res: Response): Promise<void> {
     // ユーザーメッセージをデータベースに保存
     await db.saveMessage(message, 'user', currentConversationId);
 
-    // greeting.ts の echo 関数を呼び出し
+    // echo.ts の echo 関数を呼び出し
     const result = echo(message);
 
     // エコーメッセージをデータベースに保存

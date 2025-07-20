@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { echo } from '../../../server/greeting.js'
+import { echo } from '../../../server/echo.js'
 
-describe('greeting', () => {
+describe('echo', () => {
   describe('echo', () => {
     it('渡されたメッセージと同じメッセージを返す', () => {
       const message = 'Hello, World!'
