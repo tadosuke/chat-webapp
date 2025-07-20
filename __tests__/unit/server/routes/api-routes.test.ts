@@ -8,6 +8,9 @@ vi.mock('../../../../server/controllers/api-controller.js', () => ({
   handleEcho: vi.fn((req, res) => {
     res.json({ message: 'mocked response' })
   }),
+  handleCat: vi.fn((req, res) => {
+    res.json({ message: '猫は一日の70%を寝て過ごします。' })
+  }),
   getConversations: vi.fn((req, res) => {
     res.json([{ id: 1, title: 'mocked conversation', created_at: '2023-01-01 00:00:00' }])
   }),
@@ -57,6 +60,19 @@ describe('routes', () => {
 
       expect(response.status).toBe(200)
       expect(response.body).toEqual({ message: '15:48' })
+    })
+
+    it('POST /cat エンドポイントが設定されている', async () => {
+      const app = express()
+      app.use(express.json())
+      app.use('/api', createRouter())
+
+      const response = await request(app)
+        .post('/api/cat')
+        .send({ message: '/cat' })
+
+      expect(response.status).toBe(200)
+      expect(response.body).toEqual({ message: '猫は一日の70%を寝て過ごします。' })
     })
 
     it('未定義のルートに対して404を返す', async () => {

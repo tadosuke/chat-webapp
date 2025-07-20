@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { handleEcho, getConversations, getConversationMessages, deleteConversation } from "../controllers/api-controller.js";
+import { handleEcho, getConversations, getConversationMessages, deleteConversation, handleCat } from "../controllers/api-controller.js";
 import { handleTime } from "../controllers/time-controller.js";
 
 /**
@@ -14,6 +14,9 @@ export function createRouter(): Router {
 
   // POST /time エンドポイント
   router.post("/time", handleTime);
+
+  // POST /cat エンドポイント
+  router.post("/cat", handleCat);
 
   // GET /conversations エンドポイント（会話一覧取得）
   router.get("/conversations", getConversations);
