@@ -16,6 +16,7 @@
 
 - JSDoc、コメント、テストケースの説明は全て日本語で記述
 - **Copilot の応答は必ず日本語で行う**
+- `copilot-instructions.md`, `README.md` 内の説明に関連する処理を修正した場合は、これらのファイルにも反映すること
 
 ## TypeScript
 
